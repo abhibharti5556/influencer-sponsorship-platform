@@ -1,0 +1,369 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin - Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="page-title">
+                <i class="fas fa-chart-line me-2"></i> Analytics Dashboard
+            </h2>
+            <p class="text-muted">Comprehensive analytics for the entire platform</p>
+        </div>
+        <div class="col-auto">
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('admin.export_users_data') }}" class="btn btn-success">
+                    <i class="fas fa-file-excel me-2"></i>Export Users
+                </a>
+                <a href="{{ url_for('admin.export_campaigns_data') }}" class="btn btn-primary">
+                    <i class="fas fa-file-excel me-2"></i>Export Campaigns
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Overview Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Users Overview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card bg-light border-0 h-100">
+                                <div class="card-body text-center">
+                                    <div class="display-4 fw-bold text-primary">{{ stats.total_users }}</div>
+                                    <div class="text-muted">Total Users</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light border-0 h-100">
+                                <div class="card-body text-center">
+                                    <div class="display-4 fw-bold text-success">{{ stats.influencer_count }}</div>
+                                    <div class="text-muted">Influencers</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light border-0 h-100">
+                                <div class="card-body text-center">
+                                    <div class="display-4 fw-bold text-warning">{{ stats.sponsor_count }}</div>
+                                    <div class="text-muted">Sponsors</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light border-0 h-100">
+                                <div class="card-body text-center">
+                                    <div class="display-4 fw-bold text-danger">{{ stats.flagged_users }}</div>
+                                    <div class="text-muted">Flagged Users</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Users Chart -->
+                    <div class="mt-4">
+                        <canvas id="userRoleChart" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Campaigns Overview Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Campaigns Overview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card bg-light border-0 h-100">
+                                <div class="card-body text-center">
+                                    <div class="display-4 fw-bold text-primary">{{ stats.total_campaigns }}</div>
+                                    <div class="text-muted">Total Campaigns</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light border-0 h-100">
+                                <div class="card-body text-center">
+                                    <div class="display-4 fw-bold text-success">{{ stats.active_campaigns }}</div>
+                                    <div class="text-muted">Active Campaigns</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light border-0 h-100">
+                                <div class="card-body text-center">
+                                    <div class="display-4 fw-bold text-warning">{{ stats.pending_campaigns }}</div>
+                                    <div class="text-muted">Pending</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light border-0 h-100">
+                                <div class="card-body text-center">
+                                    <div class="display-4 fw-bold text-danger">{{ stats.flagged_campaigns }}</div>
+                                    <div class="text-muted">Flagged</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Campaigns Chart -->
+                    <div class="mt-4">
+                        <canvas id="campaignStatusChart" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ad Requests Overview Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Ad Requests Overview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card bg-light border-0 h-100">
+                                <div class="card-body text-center">
+                                    <div class="display-4 fw-bold text-primary">{{ stats.total_ad_requests }}</div>
+                                    <div class="text-muted">Total Ad Requests</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light border-0 h-100">
+                                <div class="card-body text-center">
+                                    <div class="display-4 fw-bold text-success">{{ stats.accepted_ad_requests }}</div>
+                                    <div class="text-muted">Accepted</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light border-0 h-100">
+                                <div class="card-body text-center">
+                                    <div class="display-4 fw-bold text-warning">{{ stats.pending_ad_requests }}</div>
+                                    <div class="text-muted">Pending</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light border-0 h-100">
+                                <div class="card-body text-center">
+                                    <div class="display-4 fw-bold text-danger">{{ stats.rejected_ad_requests }}</div>
+                                    <div class="text-muted">Rejected</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Ad Requests Chart -->
+                    <div class="mt-4">
+                        <canvas id="adRequestStatusChart" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Platform Activity Section -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Top Platforms</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="platformChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Budget Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="budgetChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // User Role Distribution Chart
+    const userCtx = document.getElementById('userRoleChart').getContext('2d');
+    new Chart(userCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Influencers', 'Sponsors', 'Admins'],
+            datasets: [{
+                data: [
+                    {{ stats.influencer_count }}, 
+                    {{ stats.sponsor_count }}, 
+                    {{ stats.admin_count }}
+                ],
+                backgroundColor: ['#4CAF50', '#FFC107', '#2196F3'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'User Role Distribution'
+                }
+            }
+        }
+    });
+
+    // Campaign Status Chart
+    const campaignCtx = document.getElementById('campaignStatusChart').getContext('2d');
+    new Chart(campaignCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Active', 'Pending', 'Inactive', 'Flagged'],
+            datasets: [{
+                label: 'Campaigns by Status',
+                data: [
+                    {{ stats.active_campaigns }}, 
+                    {{ stats.pending_campaigns }}, 
+                    {{ stats.inactive_campaigns }}, 
+                    {{ stats.flagged_campaigns }}
+                ],
+                backgroundColor: ['#4CAF50', '#FFC107', '#607D8B', '#F44336'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+
+    // Ad Request Status Chart
+    const adRequestCtx = document.getElementById('adRequestStatusChart').getContext('2d');
+    new Chart(adRequestCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Accepted', 'Pending', 'Rejected'],
+            datasets: [{
+                data: [
+                    {{ stats.accepted_ad_requests }}, 
+                    {{ stats.pending_ad_requests }}, 
+                    {{ stats.rejected_ad_requests }}
+                ],
+                backgroundColor: ['#4CAF50', '#FFC107', '#F44336'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'Ad Request Status Distribution'
+                }
+            }
+        }
+    });
+
+    // Platform Distribution Chart
+    const platformCtx = document.getElementById('platformChart').getContext('2d');
+    new Chart(platformCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ platform_labels|default('[]')|safe }},
+            datasets: [{
+                label: 'Number of Campaigns',
+                data: {{ platform_data|default('[]')|safe }},
+                backgroundColor: ['#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c', '#34495e'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            indexAxis: 'y',
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+
+    // Budget Distribution Chart
+    const budgetCtx = document.getElementById('budgetChart').getContext('2d');
+    new Chart(budgetCtx, {
+        type: 'bar',
+        data: {
+            labels: ['<$500', '$500-1000', '$1000-5000', '$5000-10000', '>$10000'],
+            datasets: [{
+                label: 'Number of Campaigns',
+                data: {{ budget_data|default('[]')|safe }},
+                backgroundColor: ['#4CAF50', '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 

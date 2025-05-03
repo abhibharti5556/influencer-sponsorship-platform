@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <h1 class="text-center mb-4">Update Campaign: {{ campaign.name }}</h1>
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                <div class="mb-3">
+                    {{ form.name.label(class="form-label") }}
+                    {{ form.name(class="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.description.label(class="form-label") }}
+                    {{ form.description(class="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.start_date.label(class="form-label") }}
+                    {{ form.start_date(class="form-control", type="date") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.end_date.label(class="form-label") }}
+                    {{ form.end_date(class="form-control", type="date") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.budget.label(class="form-label") }}
+                    {{ form.budget(class="form-control", type="number", step="0.01") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.niche.label(class="form-label") }}
+                    {{ form.niche(class="form-select") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.visibility.label(class="form-label") }}
+                    {{ form.visibility(class="form-select") }}
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-block">Update Campaign</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

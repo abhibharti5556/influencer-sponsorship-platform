@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin - Search Campaigns{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="page-title">
+                <i class="fas fa-search me-2"></i> Find Campaigns
+            </h2>
+            <p class="text-muted">Search and filter campaigns across the platform</p>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('admin.search_campaigns') }}" class="row g-3">
+                        <div class="col-md-6">
+                            <label for="query" class="form-label">Search</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" id="query" name="query" placeholder="Search by campaign title or description" value="{{ query }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="platform" class="form-label">Platform</label>
+                            <select class="form-select" id="platform" name="platform">
+                                <option value="">All Platforms</option>
+                                {% for p in platforms %}
+                                <option value="{{ p }}" {% if platform == p %}selected{% endif %}>{{ p }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="">All Statuses</option>
+                                <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+                                <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-12 mt-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i> Search
+                            </button>
+                            <a href="{{ url_for('admin.search_campaigns') }}" class="btn btn-outline-secondary ms-2">
+                                <i class="fas fa-undo me-2"></i> Reset
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Search Results</h5>
+                    <span class="badge bg-primary">{{ campaigns|length }} Campaigns Found</span>
+                </div>
+                <div class="card-body p-0">
+                    {% if campaigns %}
+                    <div class="row g-0 p-3">
+                        {% for campaign in campaigns %}
+                        <div class="col-md-6 col-lg-4 p-2">
+                            <div class="card h-100">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="badge bg-{{ 'success' if campaign.status == 'active' else 'warning' if campaign.status == 'pending' else 'secondary' }}">
+                                            {{ campaign.status|title }}
+                                        </span>
+                                        {% if campaign.is_flagged %}
+                                        <span class="badge bg-danger ms-1">
+                                            <i class="fas fa-flag"></i> Flagged
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li>
+                                                <a class="dropdown-item" href="{{ url_for('admin.view_campaign', campaign_id=campaign.id) }}">
+                                                    <i class="fas fa-eye me-2"></i> View Details
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="{{ url_for('admin.toggle_campaign_status', campaign_id=campaign.id) }}">
+                                                    <i class="fas fa-toggle-on me-2"></i> Toggle Status
+                                                </a>
+                                            </li>
+                                            {% if campaign.is_flagged %}
+                                            <li>
+                                                <a class="dropdown-item" href="{{ url_for('admin.unflag_campaign', campaign_id=campaign.id, next=request.path) }}">
+                                                    <i class="fas fa-flag-checkered me-2"></i> Unflag
+                                                </a>
+                                            </li>
+                                            {% else %}
+                                            <li>
+                                                <a class="dropdown-item" href="{{ url_for('admin.flag_campaign', campaign_id=campaign.id, next=request.path) }}">
+                                                    <i class="fas fa-flag me-2"></i> Flag
+                                                </a>
+                                            </li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ campaign.title }}</h5>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge bg-light text-dark me-2">
+                                            <i class="fab fa-{% if campaign.platform %}{{ campaign.platform.lower() }}{% else %}bullhorn{% endif %}"></i> 
+                                            {{ campaign.platform if campaign.platform else 'Unknown' }}
+                                        </span>
+                                        <span class="text-primary">${{ campaign.budget }}</span>
+                                    </div>
+                                    <p class="card-text text-muted small">{{ campaign.description|truncate(100) }}</p>
+                                    <div class="mt-3">
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar text-primary me-1"></i>
+                                            {{ campaign.start_date|format_date }} - {{ campaign.end_date|format_date }}
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white border-top-0">
+                                    <a href="{{ url_for('admin.view_campaign', campaign_id=campaign.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye me-1"></i> View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h5>No campaigns found</h5>
+                        <p class="text-muted">Try adjusting your search criteria or browse all campaigns</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Find Campaigns - InfluencerConnect{% endblock %}
+
+{% block content %}
+<section class="py-5" style="background-color: #f8f9fa;">
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h1 class="fw-bold">Explore Campaigns</h1>
+            <p class="text-muted">Find brand collaborations that match your niche</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Search Form -->
+    <div class="row mb-5">
+      <div class="col-lg-8 mx-auto">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+            <form method="POST" class="row g-3">
+              {{ form.hidden_tag() }}
+              <div class="col-md-8">
+                <label for="{{ form.niche.id }}" class="form-label fw-medium">
+                  <i class="fas fa-filter text-primary me-1"></i>Filter by niche
+                </label>
+                {{ form.niche(class="form-select form-select-lg") }}
+              </div>
+              <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100 py-3">
+                  <i class="fas fa-search me-2"></i>Find Campaigns
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Results Section -->
+    {% if campaigns %}
+    <div class="row">
+      <div class="col-12 mb-4">
+        <div class="d-flex align-items-center">
+          <h3 class="fw-bold mb-0">Available Opportunities</h3>
+          <span class="badge bg-primary ms-3">{{ campaigns|length }} found</span>
+        </div>
+        <p class="text-muted">Browse and apply to these matching campaigns</p>
+      </div>
+      
+      {% for campaign in campaigns %}
+      <div class="col-lg-6 mb-4">
+        <div class="card border-0 h-100 position-relative overflow-hidden">
+          <div class="position-absolute top-0 end-0 mt-3 me-3">
+            <span class="badge bg-soft-{{ ['primary', 'info', 'success', 'warning', 'danger'][loop.index0 % 5] }}">
+              {{ campaign.niche|capitalize }}
+            </span>
+          </div>
+          <div class="card-body p-4">
+            <div class="mb-4 d-flex align-items-center">
+              <div class="rounded-circle p-3 me-3" style="background: linear-gradient(45deg, var(--gradient-1), var(--gradient-3)); color: white;">
+                <i class="fas {{ ['fa-bullhorn', 'fa-certificate', 'fa-star', 'fa-award', 'fa-bolt'][loop.index0 % 5] }}"></i>
+              </div>
+              <h5 class="card-title fw-bold mb-0">{{ campaign.name }}</h5>
+            </div>
+            
+            <div class="mb-4">
+              <p class="text-muted mb-0">{{ (campaign.description|string)[:150] }}{% if campaign.description|length > 150 %}...{% endif %}</p>
+            </div>
+            
+            <div class="mb-3">
+              <div class="row g-2">
+                <div class="col-6">
+                  <div class="d-flex align-items-center">
+                    <div class="me-2 text-primary">
+                      <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div>
+                      <small class="text-muted d-block">Budget</small>
+                      <span class="fw-medium">${{ campaign.budget|round(2) }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="d-flex align-items-center">
+                    <div class="me-2 text-success">
+                      <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div>
+                      <small class="text-muted d-block">Duration</small>
+                      <span class="fw-medium">
+                        {% if campaign.duration %}
+                          {{ campaign.duration }} days
+                        {% else %}
+                          {% set start_date_obj = campaign.start_date|string|to_datetime('%Y-%m-%d') %}
+                          {% set end_date_obj = campaign.end_date|string|to_datetime('%Y-%m-%d') %}
+                          {% if start_date_obj and end_date_obj %}
+                            {{ (end_date_obj - start_date_obj).days + 1 }} days
+                          {% else %}
+                            N/A
+                          {% endif %}
+                        {% endif %}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <div class="row g-2">
+                <div class="col-6">
+                  <div class="d-flex align-items-center">
+                    <div class="me-2 text-info">
+                      <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <div>
+                      <small class="text-muted d-block">Start Date</small>
+                      <span class="fw-medium">{{ campaign.start_date|format_date }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="d-flex align-items-center">
+                    <div class="me-2 text-warning">
+                      <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div>
+                      <small class="text-muted d-block">End Date</small>
+                      <span class="fw-medium">{{ campaign.end_date|format_date }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="d-grid">
+              <a href="{{ url_for('influencer.apply_campaign', campaign_id=campaign.id) }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-paper-plane me-2"></i>Apply Now
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-5 text-center">
+            <div class="mb-4">
+              <i class="fas fa-search fa-3x text-muted"></i>
+            </div>
+            <h4 class="fw-bold">No matching campaigns found</h4>
+            <p class="text-muted mb-4">We couldn't find any campaigns matching your criteria. Try changing your search parameters or check back later.</p>
+            <a href="{{ url_for('influencer.search_campaigns') }}" class="btn btn-outline-primary">
+              <i class="fas fa-redo me-2"></i>Reset Filters
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

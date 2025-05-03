@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Influencer Platform{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <style>
+      :root {
+        --primary-color: #7209b7;
+        --secondary-color: #3a0ca3;
+        --accent-color: #f72585;
+        --gradient-1: #4361ee;
+        --gradient-2: #3a0ca3;
+        --gradient-3: #7209b7;
+        --light-color: #f8f9fa;
+        --dark-color: #212529;
+        --success-color: #4cc9f0;
+        --warning-color: #f9c74f;
+      }
+      
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8f9fa;
+      }
+
+      .navbar {
+        background: linear-gradient(135deg, var(--gradient-1), var(--gradient-2), var(--gradient-3)) !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        padding: 0.8rem 1rem;
+      }
+
+      .navbar-brand {
+        color: white !important;
+        font-weight: bold;
+        font-size: 1.3rem;
+        letter-spacing: 0.5px;
+      }
+
+      .nav-link {
+        color: rgba(255,255,255,0.9) !important;
+        position: relative;
+        margin: 0 5px;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+      }
+
+      .nav-link:hover, .nav-link.active {
+        color: white !important;
+        background-color: rgba(255,255,255,0.15);
+        transform: translateY(-2px);
+      }
+      
+      .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background-color: var(--accent-color);
+        border-radius: 3px 3px 0 0;
+      }
+
+      .container {
+        max-width: 1200px;
+        padding: 20px;
+      }
+
+      .btn-primary {
+        background: linear-gradient(to right, var(--gradient-1), var(--gradient-3));
+        border: none;
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 1;
+        overflow: hidden;
+      }
+
+      .btn-primary::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to right, var(--gradient-3), var(--gradient-1));
+        z-index: -1;
+        transition: opacity 0.3s ease;
+        opacity: 0;
+      }
+
+      .btn-primary:hover::after {
+        opacity: 1;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      }
+      
+      .btn-outline-light {
+        border-color: rgba(255,255,255,0.7);
+        color: white;
+      }
+      
+      .btn-outline-light:hover {
+        background-color: rgba(255,255,255,0.1);
+        color: white;
+        transform: translateY(-3px);
+      }
+
+      .card {
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border: none;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+      }
+      
+      .card:hover {
+        transform: translateY(-7px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      }
+      
+      .card-header {
+        border-bottom: none;
+        padding: 1.25rem;
+      }
+      
+      .content-container {
+        min-height: calc(100vh - 80px);
+      }
+      
+      .form-control {
+        border-radius: 8px;
+        padding: 0.6rem 1rem;
+        border: 1px solid #dee2e6;
+      }
+      
+      .form-control:focus {
+        border-color: var(--gradient-1);
+        box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.15);
+      }
+      
+      .input-group-text {
+        border-radius: 8px 0 0 8px;
+        background-color: #f8f9fa;
+      }
+      
+      .input-group .form-control {
+        border-radius: 0 8px 8px 0;
+      }
+      
+      .alert {
+        border-radius: 10px;
+        border: none;
+      }
+      
+      .bg-gradient-primary {
+        background: linear-gradient(135deg, var(--gradient-1), var(--gradient-2), var(--gradient-3));
+        color: white;
+      }
+      
+      .badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-weight: 500;
+      }
+      
+      /* Additional styling */
+      .section-title {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 2rem;
+      }
+      
+      .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 70px;
+        height: 4px;
+        background: linear-gradient(to right, var(--gradient-1), var(--gradient-3));
+        border-radius: 2px;
+      }
+      
+      .feature-icon-box {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--gradient-1), var(--gradient-3));
+        margin-bottom: 1.5rem;
+        color: white;
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.2);
+      }
+      
+      .dropdown-menu {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        padding: 1rem 0;
+      }
+      
+      .dropdown-item {
+        padding: 0.5rem 1.5rem;
+        transition: all 0.2s ease;
+      }
+      
+      .dropdown-item:hover, .dropdown-item:focus {
+        background-color: rgba(67, 97, 238, 0.1);
+        color: var(--gradient-1);
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+      <div class="container-fluid px-4">
+        <a class="navbar-brand" href="/">
+          <i class="fas fa-bullhorn me-2"></i>InfluencerConnect
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto">
+          {% if user and user.is_authenticated %}
+            <li class="nav-item">
+                <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">
+                  <i class="fas fa-home me-1"></i> Home
+                </a>
+            </li>
+
+            {% if user.role == "influencer" %}
+            <li class="nav-item">
+                <a class="nav-link {% if request.path == '/influencer/profile' %}active{% endif %}" href="{{ url_for('influencer.view_profile') }}">
+                  <i class="fas fa-user me-1"></i> Profile
+                </a>
+            </li>
+            {% endif %}
+
+            {% if user.role == "sponsor" %}
+            <li class="nav-item">
+                <a class="nav-link {% if '/sponsor/campaigns' in request.path %}active{% endif %}" href="/sponsor/campaigns">
+                  <i class="fas fa-bullhorn me-1"></i> Campaigns
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {% if request.path == '/sponsor/search_influencers' %}active{% endif %}" href="{{ url_for('sponsor.search_influencers') }}">
+                  <i class="fas fa-search me-1"></i> Find Influencers
+                </a>
+              </li>
+              {% elif user.role == "influencer" %}
+              <li class="nav-item">
+                <a class="nav-link {% if request.path == '/influencer/search_campaigns' %}active{% endif %}" href="{{ url_for('influencer.search_campaigns') }}">
+                  <i class="fas fa-search me-1"></i> Find Campaigns
+                </a>
+            </li>
+              {% elif user.role == "admin" %}
+            <li class="nav-item">
+                <a class="nav-link {% if request.path == '/admin/search_campaigns' %}active{% endif %}" href="{{ url_for('admin.admin_search_campaigns') }}">
+                  <i class="fas fa-search me-1"></i> Find Campaigns
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.path == '/admin/analytics' %}active{% endif %}" href="{{ url_for('admin.analytics') }}">
+                  <i class="fas fa-chart-line me-1"></i> Analytics
+                </a>
+            </li>
+            {% endif %}
+
+            {% if user.role == "sponsor" %}
+            <li class="nav-item">
+                <a class="nav-link {% if request.path == '/sponsor/stats' %}active{% endif %}" href="{{ url_for('sponsor.stats') }}">
+                  <i class="fas fa-chart-line me-1"></i> Analytics
+                </a>
+            </li>
+              {% elif user.role == "influencer" %}
+            <li class="nav-item">
+                <a class="nav-link {% if request.path == '/influencer/stats' %}active{% endif %}" href="{{ url_for('influencer.stats') }}">
+                  <i class="fas fa-chart-line me-1"></i> Analytics
+                </a>
+            </li>
+            {% endif %}
+          {% else %}
+            <li class="nav-item">
+                <a class="nav-link {% if request.path == '/login' %}active{% endif %}" href="/login">
+                  <i class="fas fa-sign-in-alt me-1"></i> Login
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.path == '/register' %}active{% endif %}" href="/register">
+                  <i class="fas fa-user-plus me-1"></i> Register
+                </a>
+            </li>
+          {% endif %}
+        </ul>
+        {% if user and user.is_authenticated %}
+            <ul class="navbar-nav">
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  {% if user.profile_picture %}
+                    <img src="{{ user.profile_picture }}" alt="{{ user.username }}" class="rounded-circle me-1" style="width: 28px; height: 28px; object-fit: cover; border: 2px solid rgba(255,255,255,0.7);">
+                  {% else %}
+                    <i class="fas fa-user-circle me-1"></i>
+                  {% endif %}
+                  {{ user.username }}
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                  <li>
+                    {% if user.role == 'influencer' %}
+                      <a class="dropdown-item" href="{{ url_for('influencer.edit_profile') }}">
+                        <i class="fas fa-user-edit me-2"></i>Edit Profile
+                      </a>
+                    {% elif user.role == 'sponsor' %}  
+                      <a class="dropdown-item" href="/sponsor/profile/edit">
+                        <i class="fas fa-user-edit me-2"></i>Edit Profile
+                      </a>
+                    {% elif user.role == 'admin' %}
+                      <a class="dropdown-item" href="{{ url_for('admin.dashboard') }}">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                      </a>
+                      <a class="dropdown-item" href="{{ url_for('admin.search_users') }}">
+                        <i class="fas fa-users me-2"></i>Manage Users
+                      </a>
+                      <a class="dropdown-item" href="{{ url_for('admin.admin_search_campaigns') }}">
+                        <i class="fas fa-bullhorn me-2"></i>Manage Campaigns
+                      </a>
+                      <a class="dropdown-item" href="{{ url_for('admin.edit_profile') }}">
+                        <i class="fas fa-user-edit me-2"></i>Edit Profile
+                      </a>
+                    {% else %}
+                      <a class="dropdown-item" href="#">
+                        <i class="fas fa-user-edit me-2"></i>Edit Profile
+                      </a>
+                    {% endif %}
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                </ul>
+            </li>
+          </ul>
+        {% endif %}
+        </div>
+      </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="container mt-3">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            <i class="fas fa-info-circle me-2"></i>{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="content-container">
+      {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Add animation to buttons on hover
+      document.addEventListener('DOMContentLoaded', function() {
+        const buttons = document.querySelectorAll('.btn');
+        buttons.forEach(button => {
+          button.addEventListener('mouseenter', function() {
+            this.style.transition = 'all 0.3s ease';
+            this.style.transform = 'translateY(-3px)';
+          });
+          button.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
+

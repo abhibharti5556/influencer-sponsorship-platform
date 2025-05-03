@@ -1,0 +1,427 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users - InfluencerConnect{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <div class="row mb-5">
+      <div class="col-lg-12">
+        <h1 class="display-5 fw-bold text-center mb-3">User Management</h1>
+        <p class="lead text-center text-muted">Monitor and manage platform users</p>
+      </div>
+    </div>
+
+    <div class="row justify-content-center mb-5">
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+            <form method="GET" class="needs-validation" novalidate>
+              <div class="mb-4">
+                <label for="{{ form.role.id }}" class="form-label fw-bold">
+                  <i class="fas fa-user-tag text-primary me-1"></i>Filter by Role
+                </label>
+                {{ form.role(class="form-select") }}
+              </div>
+              <div class="d-grid">
+                {{ form.submit(class="btn btn-primary py-2") }}
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="bg-light">
+                  <tr>
+                    <th scope="col" class="ps-4">User</th>
+                    <th scope="col">Role</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="text-end pe-4">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for user in users %}
+                  <tr class="{% if user.is_flagged %}table-danger{% endif %}" id="user-row-{{ user.id }}">
+                    <td class="ps-4">
+                      <div class="d-flex align-items-center">
+                        {% if user.profile_picture %}
+                          <img src="{{ user.profile_picture }}" alt="{{ user.username }}" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                        {% else %}
+                          <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                            <i class="fas fa-user text-white"></i>
+                          </div>
+                        {% endif %}
+                        <div>
+                          <h6 class="mb-0">{{ user.name }}</h6>
+                          <small class="text-muted">@{{ user.username }}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge {% if user.role == 'admin' %}bg-danger{% elif user.role == 'sponsor' %}bg-primary{% else %}bg-success{% endif %}">
+                        {{ user.role.capitalize() }}
+                      </span>
+                    </td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                      {% if user.is_flagged %}
+                      <span class="badge bg-danger" id="status-{{ user.id }}">Flagged</span>
+                      {% else %}
+                      <span class="badge bg-success" id="status-{{ user.id }}">Active</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-end pe-4">
+                      <button type="button" class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#userProfileModal{{ user.id }}">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                      {% if user.role != 'admin' %}
+                        {% if user.is_flagged %}
+                        <button type="button" class="btn btn-sm btn-outline-success" onclick="toggleUserFlag({{ user.id }}, false)">
+                          <i class="fas fa-flag"></i> Unflag
+                        </button>
+                        {% else %}
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="toggleUserFlag({{ user.id }}, true)">
+                          <i class="fas fa-flag"></i> Flag
+                        </button>
+                        {% endif %}
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% else %}
+                  <tr>
+                    <td colspan="5" class="text-center py-5">
+                      <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                      <h4 class="fw-light text-muted">No users found</h4>
+                      <p class="text-muted">Try adjusting your search filters</p>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if users|length > 0 and pagination.pages > 1 %}
+    <div class="row mt-4">
+      <div class="col-12">
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+            {% for page in pagination.iter_pages() %}
+              {% if page %}
+                {% if page != pagination.page %}
+                <li class="page-item">
+                  <a class="page-link" href="{{ url_for('admin.search_users', page=page, role=request.args.get('role', '')) }}">{{ page }}</a>
+                </li>
+                {% else %}
+                <li class="page-item active">
+                  <span class="page-link">{{ page }}</span>
+                </li>
+                {% endif %}
+              {% else %}
+                <li class="page-item disabled">
+                  <span class="page-link">...</span>
+                </li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        </nav>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- User Profile Modals -->
+{% for user in users %}
+<div class="modal fade" id="userProfileModal{{ user.id }}" tabindex="-1" aria-labelledby="userProfileModalLabel{{ user.id }}" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-light">
+        <h5 class="modal-title" id="userProfileModalLabel{{ user.id }}">
+          <i class="fas fa-user-circle me-2"></i>User Profile
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="row">
+          <div class="col-md-4 text-center mb-4">
+            <div class="position-relative d-inline-block">
+              {% if user.profile_picture %}
+                <img src="{{ user.profile_picture }}" alt="{{ user.username }}" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover; border: 4px solid #fff; box-shadow: 0 0 15px rgba(0,0,0,0.1);">
+              {% else %}
+                <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 150px; height: 150px; border: 4px solid #fff; box-shadow: 0 0 15px rgba(0,0,0,0.1);">
+                  <i class="fas fa-user fa-4x text-white"></i>
+                </div>
+              {% endif %}
+              <div class="position-absolute bottom-0 end-0 bg-white rounded-circle p-2" style="box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                {% if user.is_flagged %}
+                  <i class="fas fa-flag text-danger"></i>
+                {% else %}
+                  <i class="fas fa-check-circle text-success"></i>
+                {% endif %}
+              </div>
+            </div>
+            <h4 class="mb-1">{{ user.name }}</h4>
+            <p class="text-muted mb-2">@{{ user.username }}</p>
+            <div class="d-flex justify-content-center gap-2 mb-3">
+              <span class="badge {% if user.role == 'admin' %}bg-danger{% elif user.role == 'sponsor' %}bg-primary{% else %}bg-success{% endif %}">
+                <i class="fas fa-user-tag me-1"></i>{{ user.role.capitalize() }}
+              </span>
+              {% if user.is_flagged %}
+                <span class="badge bg-danger">
+                  <i class="fas fa-flag me-1"></i>Flagged
+                </span>
+              {% else %}
+                <span class="badge bg-success">
+                  <i class="fas fa-check me-1"></i>Active
+                </span>
+              {% endif %}
+            </div>
+            {% if user.role != 'admin' %}
+              <div class="d-grid gap-2">
+                {% if user.is_flagged %}
+                  <button type="button" class="btn btn-success" onclick="toggleUserFlag({{ user.id }}, false)">
+                    <i class="fas fa-flag me-2"></i>Unflag User
+                  </button>
+                {% else %}
+                  <button type="button" class="btn btn-danger" onclick="toggleUserFlag({{ user.id }}, true)">
+                    <i class="fas fa-flag me-2"></i>Flag User
+                  </button>
+                {% endif %}
+              </div>
+            {% endif %}
+          </div>
+          <div class="col-md-8">
+            <div class="card border-0 shadow-sm mb-4">
+              <div class="card-body">
+                <h6 class="card-title text-primary mb-3">
+                  <i class="fas fa-info-circle me-2"></i>Basic Information
+                </h6>
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label text-muted">Email</label>
+                    <p class="mb-0">{{ user.email }}</p>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label text-muted">Member Since</label>
+                    <p class="mb-0">{{ user.created_at }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {% if user.bio %}
+            <div class="card border-0 shadow-sm mb-4">
+              <div class="card-body">
+                <h6 class="card-title text-primary mb-3">
+                  <i class="fas fa-quote-left me-2"></i>Bio
+                </h6>
+                <p class="mb-0">{{ user.bio }}</p>
+              </div>
+            </div>
+            {% endif %}
+
+            {% if user.website %}
+            <div class="card border-0 shadow-sm mb-4">
+              <div class="card-body">
+                <h6 class="card-title text-primary mb-3">
+                  <i class="fas fa-globe me-2"></i>Website
+                </h6>
+                <a href="{{ user.website }}" target="_blank" class="text-decoration-none">
+                  <i class="fas fa-external-link-alt me-2"></i>{{ user.website }}
+                </a>
+              </div>
+            </div>
+            {% endif %}
+
+            {% if user.role == 'influencer' %}
+            <div class="card border-0 shadow-sm mb-4">
+              <div class="card-body">
+                <h6 class="card-title text-primary mb-3">
+                  <i class="fas fa-share-alt me-2"></i>Social Media
+                </h6>
+                <div class="row g-3">
+                  {% if user.instagram %}
+                    <div class="col-md-6">
+                      <a href="{{ user.instagram }}" target="_blank" class="text-decoration-none">
+                        <i class="fab fa-instagram text-danger me-2"></i>Instagram
+                      </a>
+                    </div>
+                  {% endif %}
+                  {% if user.twitter %}
+                    <div class="col-md-6">
+                      <a href="{{ user.twitter }}" target="_blank" class="text-decoration-none">
+                        <i class="fab fa-twitter text-info me-2"></i>Twitter
+                      </a>
+                    </div>
+                  {% endif %}
+                  {% if user.youtube %}
+                    <div class="col-md-6">
+                      <a href="{{ user.youtube }}" target="_blank" class="text-decoration-none">
+                        <i class="fab fa-youtube text-danger me-2"></i>YouTube
+                      </a>
+                    </div>
+                  {% endif %}
+                  {% if user.tiktok %}
+                    <div class="col-md-6">
+                      <a href="{{ user.tiktok }}" target="_blank" class="text-decoration-none">
+                        <i class="fab fa-tiktok me-2"></i>TikTok
+                      </a>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            {% endif %}
+
+            {% if user.role == 'sponsor' %}
+            <div class="card border-0 shadow-sm">
+              <div class="card-body">
+                <h6 class="card-title text-primary mb-3">
+                  <i class="fas fa-bullhorn me-2"></i>Active Campaigns
+                </h6>
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Campaign</th>
+                        <th>Status</th>
+                        <th>Budget</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for campaign in user.campaigns %}
+                      <tr>
+                        <td>{{ campaign.title }}</td>
+                        <td>
+                          <span class="badge {% if campaign.status == 'active' %}bg-success{% elif campaign.status == 'pending' %}bg-warning{% else %}bg-secondary{% endif %}">
+                            {{ campaign.status.capitalize() }}
+                          </span>
+                        </td>
+                        <td>${{ "%.2f"|format(campaign.budget) }}</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+
+            {% if user.role == 'influencer' %}
+            <div class="card border-0 shadow-sm">
+              <div class="card-body">
+                <h6 class="card-title text-primary mb-3">
+                  <i class="fas fa-handshake me-2"></i>Campaign Applications
+                </h6>
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Campaign</th>
+                        <th>Status</th>
+                        <th>Applied Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for request in user.ad_requests %}
+                      <tr>
+                        <td>{{ request.campaign.title }}</td>
+                        <td>
+                          <span class="badge {% if request.status == 'accepted' %}bg-success{% elif request.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                            {{ request.status.capitalize() }}
+                          </span>
+                        </td>
+                        <td>{{ request.created_at }}</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+{% block scripts %}
+<script>
+function toggleUserFlag(userId, flag) {
+    const url = flag ? `/admin/flag_user/${userId}` : `/admin/unflag_user/${userId}`;
+    const method = 'POST';
+    
+    fetch(url, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            // Update the row's background
+            const row = document.getElementById(`user-row-${userId}`);
+            if (flag) {
+                row.classList.add('table-danger');
+            } else {
+                row.classList.remove('table-danger');
+            }
+            
+            // Update the status badge
+            const statusBadge = document.getElementById(`status-${userId}`);
+            if (flag) {
+                statusBadge.textContent = 'Flagged';
+                statusBadge.className = 'badge bg-danger';
+            } else {
+                statusBadge.textContent = 'Active';
+                statusBadge.className = 'badge bg-success';
+            }
+            
+            // Update the button
+            const button = row.querySelector('button:last-child');
+            if (flag) {
+                button.className = 'btn btn-sm btn-outline-success';
+                button.innerHTML = '<i class="fas fa-flag"></i> Unflag';
+                button.onclick = () => toggleUserFlag(userId, false);
+            } else {
+                button.className = 'btn btn-sm btn-outline-danger';
+                button.innerHTML = '<i class="fas fa-flag"></i> Flag';
+                button.onclick = () => toggleUserFlag(userId, true);
+            }
+            
+            // Show success message
+            const toast = new bootstrap.Toast(document.createElement('div'));
+            toast.show();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating the user status.');
+    });
+}
+</script>
+{% endblock %}
+{% endblock %} 

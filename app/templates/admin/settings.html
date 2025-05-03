@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Settings - InfluencerConnect{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row mb-4">
+    <div class="col-12">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Settings</li>
+        </ol>
+      </nav>
+      <h1 class="display-5 fw-bold">Admin Settings</h1>
+      <p class="lead text-muted">Configure platform settings and preferences</p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-3 mb-4">
+      <!-- Settings Navigation -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            <a href="#general" class="list-group-item list-group-item-action active py-3" data-bs-toggle="list">
+              <i class="fas fa-cog me-2"></i>General Settings
+            </a>
+            <a href="#security" class="list-group-item list-group-item-action py-3" data-bs-toggle="list">
+              <i class="fas fa-shield-alt me-2"></i>Security
+            </a>
+            <a href="#notifications" class="list-group-item list-group-item-action py-3" data-bs-toggle="list">
+              <i class="fas fa-bell me-2"></i>Notifications
+            </a>
+            <a href="#maintenance" class="list-group-item list-group-item-action py-3" data-bs-toggle="list">
+              <i class="fas fa-tools me-2"></i>Maintenance
+            </a>
+            <a href="#appearance" class="list-group-item list-group-item-action py-3" data-bs-toggle="list">
+              <i class="fas fa-palette me-2"></i>Appearance
+            </a>
+            <a href="#advanced" class="list-group-item list-group-item-action py-3" data-bs-toggle="list">
+              <i class="fas fa-sliders-h me-2"></i>Advanced
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-9">
+      <!-- Settings Content -->
+      <div class="tab-content">
+        <!-- General Settings Tab -->
+        <div class="tab-pane fade show active" id="general">
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-gradient-primary p-3">
+              <h5 class="mb-0 text-white">
+                <i class="fas fa-cog me-2"></i>General Settings
+              </h5>
+            </div>
+            <div class="card-body p-4">
+              <div class="alert alert-info mb-4">
+                <i class="fas fa-info-circle me-2"></i>This settings page is for platform configuration. Changes will be applied system-wide.
+              </div>
+
+              <form id="generalSettingsForm" action="#" method="POST">
+                <div class="mb-4">
+                  <label class="form-label fw-medium">Platform Name</label>
+                  <input type="text" class="form-control" name="platform_name" value="InfluencerConnect">
+                  <div class="form-text">The name of your platform displayed throughout the site</div>
+                </div>
+
+                <div class="mb-4">
+                  <label class="form-label fw-medium">Admin Email</label>
+                  <input type="email" class="form-control" name="admin_email" value="{{ user.email }}">
+                  <div class="form-text">Primary contact email for system notifications</div>
+                </div>
+
+                <div class="mb-4">
+                  <label class="form-label fw-medium">Time Zone</label>
+                  <select class="form-select" name="timezone">
+                    <option selected>UTC (Coordinated Universal Time)</option>
+                    <option>America/New_York (Eastern Time)</option>
+                    <option>America/Chicago (Central Time)</option>
+                    <option>America/Denver (Mountain Time)</option>
+                    <option>America/Los_Angeles (Pacific Time)</option>
+                  </select>
+                  <div class="form-text">Default time zone for displaying dates and times</div>
+                </div>
+
+                <div class="form-check form-switch mb-4">
+                  <input class="form-check-input" type="checkbox" id="enableRegistration" name="enable_registration" checked>
+                  <label class="form-check-label" for="enableRegistration">Enable User Registration</label>
+                  <div class="form-text">Allow new users to register on the platform</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+              </form>
+              
+              <!-- Success Alert (hidden by default) -->
+              <div class="alert alert-success mt-4 d-none" id="settingsSavedAlert">
+                <i class="fas fa-check-circle me-2"></i>Settings have been saved successfully!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Tab -->
+        <div class="tab-pane fade" id="security">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-gradient-primary p-3">
+              <h5 class="mb-0 text-white">
+                <i class="fas fa-shield-alt me-2"></i>Security Settings
+              </h5>
+            </div>
+            <div class="card-body p-4">
+              <form id="securitySettingsForm" action="#" method="POST">
+                <div class="mb-4">
+                  <label class="form-label fw-medium">Password Requirements</label>
+                  <div class="card bg-light border-0 p-3 mb-2">
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="requireUppercase" name="require_uppercase" checked>
+                      <label class="form-check-label" for="requireUppercase">Require uppercase letters</label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="requireLowercase" name="require_lowercase" checked>
+                      <label class="form-check-label" for="requireLowercase">Require lowercase letters</label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="requireNumbers" name="require_numbers" checked>
+                      <label class="form-check-label" for="requireNumbers">Require numbers</label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="requireSpecial" name="require_special" checked>
+                      <label class="form-check-label" for="requireSpecial">Require special characters</label>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="mb-4">
+                  <label class="form-label fw-medium">Minimum Password Length</label>
+                  <select class="form-select" name="min_password_length">
+                    <option>6 characters</option>
+                    <option selected>8 characters</option>
+                    <option>10 characters</option>
+                    <option>12 characters</option>
+                  </select>
+                </div>
+                
+                <div class="mb-4">
+                  <label class="form-label fw-medium">Account Lockout Settings</label>
+                  <div class="input-group mb-2">
+                    <span class="input-group-text">Max failed attempts</span>
+                    <input type="number" class="form-control" name="max_login_attempts" value="5" min="1" max="10">
+                  </div>
+                  <div class="input-group">
+                    <span class="input-group-text">Lockout duration</span>
+                    <input type="number" class="form-control" name="lockout_duration" value="30" min="5">
+                    <span class="input-group-text">minutes</span>
+                  </div>
+                </div>
+                
+                <div class="form-check form-switch mb-4">
+                  <input class="form-check-input" type="checkbox" id="enable2FA" name="enable_2fa">
+                  <label class="form-check-label" for="enable2FA">Enable Two-Factor Authentication</label>
+                  <div class="form-text">Require users to use 2FA for additional security</div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-save me-2"></i>Save Security Settings
+                </button>
+              </form>
+              
+              <div class="alert alert-success mt-4 d-none" id="securitySavedAlert">
+                <i class="fas fa-check-circle me-2"></i>Security settings have been saved successfully!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notifications Tab -->
+        <div class="tab-pane fade" id="notifications">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-gradient-primary p-3">
+              <h5 class="mb-0 text-white">
+                <i class="fas fa-bell me-2"></i>Notification Settings
+              </h5>
+            </div>
+            <div class="card-body p-4">
+              <form id="notificationSettingsForm" action="#" method="POST">
+                <h6 class="fw-bold mb-3">Email Notifications</h6>
+                
+                <div class="card bg-light border-0 p-3 mb-4">
+                  <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="notifyNewUser" name="notify_new_user" checked>
+                    <label class="form-check-label" for="notifyNewUser">New user registrations</label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="notifyNewCampaign" name="notify_new_campaign" checked>
+                    <label class="form-check-label" for="notifyNewCampaign">New campaign creation</label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="notifyFlaggedContent" name="notify_flagged_content" checked>
+                    <label class="form-check-label" for="notifyFlaggedContent">Flagged content alerts</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="notifySystemErrors" name="notify_system_errors" checked>
+                    <label class="form-check-label" for="notifySystemErrors">System error alerts</label>
+                  </div>
+                </div>
+                
+                <h6 class="fw-bold mb-3">Email Digest</h6>
+                
+                <div class="mb-4">
+                  <label class="form-label">Send activity digest emails</label>
+                  <select class="form-select" name="digest_frequency">
+                    <option>Never</option>
+                    <option>Daily</option>
+                    <option selected>Weekly</option>
+                    <option>Monthly</option>
+                  </select>
+                </div>
+                
+                <div class="mb-4">
+                  <label class="form-label">Email recipients</label>
+                  <input type="text" class="form-control" name="notify_emails" value="{{ user.email }}">
+                  <div class="form-text">Multiple emails can be separated with a comma</div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-save me-2"></i>Save Notification Settings
+                </button>
+              </form>
+              
+              <div class="alert alert-success mt-4 d-none" id="notificationSavedAlert">
+                <i class="fas fa-check-circle me-2"></i>Notification settings have been saved successfully!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane fade" id="maintenance">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 text-center">
+              <i class="fas fa-tools fa-4x text-muted mb-3"></i>
+              <h4>Maintenance Settings</h4>
+              <p class="text-muted">This section is under development and will be available soon.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane fade" id="appearance">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 text-center">
+              <i class="fas fa-palette fa-4x text-muted mb-3"></i>
+              <h4>Appearance Settings</h4>
+              <p class="text-muted">This section is under development and will be available soon.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane fade" id="advanced">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 text-center">
+              <i class="fas fa-sliders-h fa-4x text-muted mb-3"></i>
+              <h4>Advanced Settings</h4>
+              <p class="text-muted">This section is under development and will be available soon.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching functionality
+    const tabLinks = document.querySelectorAll('.list-group-item-action');
+    tabLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        // Remove active class from all tabs
+        tabLinks.forEach(tab => tab.classList.remove('active'));
+        // Add active class to clicked tab
+        this.classList.add('active');
+        
+        // Show the corresponding tab content
+        const targetId = this.getAttribute('href').substring(1);
+        document.querySelectorAll('.tab-pane').forEach(pane => {
+          pane.classList.remove('show', 'active');
+        });
+        document.getElementById(targetId).classList.add('show', 'active');
+      });
+    });
+    
+    // Form submission handling
+    const generalSettingsForm = document.getElementById('generalSettingsForm');
+    if (generalSettingsForm) {
+      generalSettingsForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // In a real application, this would send data to server
+        // For now, we'll just simulate a successful save
+        
+        // Show success message
+        const successAlert = document.getElementById('settingsSavedAlert');
+        successAlert.classList.remove('d-none');
+        
+        // Hide the success message after 3 seconds
+        setTimeout(function() {
+          successAlert.classList.add('d-none');
+        }, 3000);
+      });
+    }
+    
+    // Security settings form handling
+    const securitySettingsForm = document.getElementById('securitySettingsForm');
+    if (securitySettingsForm) {
+      securitySettingsForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show success message
+        const successAlert = document.getElementById('securitySavedAlert');
+        successAlert.classList.remove('d-none');
+        
+        // Hide the success message after 3 seconds
+        setTimeout(function() {
+          successAlert.classList.add('d-none');
+        }, 3000);
+      });
+    }
+    
+    // Notification settings form handling
+    const notificationSettingsForm = document.getElementById('notificationSettingsForm');
+    if (notificationSettingsForm) {
+      notificationSettingsForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show success message
+        const successAlert = document.getElementById('notificationSavedAlert');
+        successAlert.classList.remove('d-none');
+        
+        // Hide the success message after 3 seconds
+        setTimeout(function() {
+          successAlert.classList.add('d-none');
+        }, 3000);
+      });
+    }
+  });
+</script>
+{% endblock %} 

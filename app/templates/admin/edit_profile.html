@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Admin Profile - InfluencerConnect{% endblock %}
+
+{% block content %}
+<section class="py-5" style="background-color: #f8f9fa;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card border-0 shadow">
+          <div class="card-header bg-gradient-primary p-4">
+            <h2 class="text-white mb-0">Update Admin Profile</h2>
+            <p class="text-white opacity-75 mb-0">Manage your administrator account information</p>
+          </div>
+          <div class="card-body p-4">
+            <form method="POST" class="needs-validation" enctype="multipart/form-data" novalidate>
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+              
+              <div class="row mb-4">
+                <div class="col-lg-3 text-center">
+                  <div class="mb-3">
+                    <div class="profile-pic-wrapper mb-3">
+                      <div class="position-relative d-inline-block">
+                        {% if user.profile_picture %}
+                          <img src="{{ user.profile_picture }}" class="rounded-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;" id="preview-pic">
+                        {% else %}
+                          <img src="https://via.placeholder.com/150" class="rounded-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;" id="preview-pic">
+                        {% endif %}
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="{{ form.profile_picture.id }}" class="form-label text-muted">
+                        <i class="fas fa-camera text-primary me-1"></i>Profile Picture
+                      </label>
+                      <div class="input-group">
+                        {{ form.profile_picture(class="form-control", accept=".jpg,.jpeg,.png,.gif", onchange="previewImage(this)") }}
+                        <button class="btn btn-outline-secondary" type="button" id="clear-image">Clear</button>
+                      </div>
+                      <div class="form-text">Upload an image (JPG, JPEG, PNG, GIF)</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-9">
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">
+                      <i class="fas fa-id-badge text-primary me-1"></i>Username
+                    </label>
+                    <input type="text" class="form-control" value="{{ user.username }}" readonly disabled>
+                    <div class="form-text">Username cannot be changed</div>
+                  </div>
+                  <div class="mb-3">
+                    <label for="{{ form.name.id }}" class="form-label fw-bold">
+                      <i class="fas fa-user text-primary me-1"></i>Full Name
+                    </label>
+                    {{ form.name(class="form-control", placeholder="Your full name", required=True) }}
+                  </div>
+                  <div class="mb-3">
+                    <label for="{{ form.email.id }}" class="form-label fw-bold">
+                      <i class="fas fa-envelope text-primary me-1"></i>Email Address
+                    </label>
+                    {{ form.email(class="form-control", placeholder="your@email.com", required=True) }}
+                  </div>
+                </div>
+              </div>
+              
+              <hr class="my-4">
+              
+              <div class="mb-4">
+                <label for="{{ form.bio.id }}" class="form-label fw-bold">
+                  <i class="fas fa-align-left text-primary me-1"></i>Bio
+                </label>
+                {{ form.bio(class="form-control", rows=4, placeholder="Tell us about yourself and your role") }}
+                <div class="form-text"><span id="bio-count">0</span>/500 characters</div>
+              </div>
+              
+              <div class="mb-4">
+                <label for="{{ form.website.id }}" class="form-label fw-bold">
+                  <i class="fas fa-globe text-primary me-1"></i>Website
+                </label>
+                {{ form.website(class="form-control", placeholder="https://yourwebsite.com") }}
+              </div>
+              
+              <div class="d-grid gap-2">
+                {{ form.submit(class="btn btn-primary py-2") }}
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Preview uploaded image
+  function previewImage(input) {
+    const preview = document.getElementById('preview-pic');
+    const file = input.files[0];
+    
+    if (file) {
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        preview.src = e.target.result;
+      }
+      
+      reader.readAsDataURL(file);
+    }
+  }
+  
+  // Clear image upload
+  document.addEventListener('DOMContentLoaded', function() {
+    const clearButton = document.getElementById('clear-image');
+    const imageInput = document.getElementById('{{ form.profile_picture.id }}');
+    const preview = document.getElementById('preview-pic');
+    
+    clearButton.addEventListener('click', function() {
+      imageInput.value = '';
+      preview.src = 'https://via.placeholder.com/150';
+    });
+    
+    // Count bio characters
+    const bioField = document.getElementById('{{ form.bio.id }}');
+    const bioCount = document.getElementById('bio-count');
+    
+    function updateCount() {
+      const currentLength = bioField.value.length;
+      bioCount.textContent = currentLength;
+      
+      if (currentLength > 500) {
+        bioCount.classList.add('text-danger');
+      } else {
+        bioCount.classList.remove('text-danger');
+      }
+    }
+    
+    bioField.addEventListener('input', updateCount);
+    updateCount();
+  });
+</script>
+{% endblock %} 

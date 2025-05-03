@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Pending Requests - InfluencerConnect{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <!-- Header Section -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <h2 class="fw-bold mb-1">Pending Collaboration Requests</h2>
+            <p class="text-muted">Review and respond to incoming campaign opportunities</p>
+          </div>
+          <div class="d-flex align-items-center">
+            <span class="badge rounded-pill bg-primary px-3 py-2">
+              <i class="fas fa-clock me-1"></i> {{ requests|length }} Pending
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% if requests %}
+    <!-- Requests Grid -->
+    <div class="row">
+      {% for request in requests %}
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card border-0 shadow-sm hover-lift h-100">
+          <div class="card-header bg-gradient-light p-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold card-title text-truncate">
+              {{ request.campaign.name }}
+            </h5>
+            <span class="badge bg-warning">Pending</span>
+          </div>
+          <div class="card-body p-4">
+            <!-- Sponsor Info -->
+            <div class="d-flex align-items-center mb-3">
+              <div class="avatar-circle bg-primary-soft text-primary me-3">
+                <i class="fas fa-user-tie"></i>
+              </div>
+              <div>
+                <small class="text-muted d-block">Sponsor</small>
+                <span class="fw-medium">{{ request.campaign.sponsor.username }}</span>
+              </div>
+            </div>
+            
+            <!-- Payment -->
+            <div class="d-flex align-items-center mb-3">
+              <div class="avatar-circle bg-success-soft text-success me-3">
+                <i class="fas fa-dollar-sign"></i>
+              </div>
+              <div>
+                <small class="text-muted d-block">Offered Payment</small>
+                <span class="fw-bold text-success">${{ request.payment_amount }}</span>
+              </div>
+            </div>
+            
+            <!-- Campaign Dates -->
+            <div class="d-flex align-items-center mb-3">
+              <div class="avatar-circle bg-info-soft text-info me-3">
+                <i class="fas fa-calendar-alt"></i>
+              </div>
+              <div>
+                <small class="text-muted d-block">Campaign Period</small>
+                <span class="fw-medium">
+                  {% if request.campaign.start_date and request.campaign.end_date %}
+                    {{ request.campaign.start_date|format_date }} - {{ request.campaign.end_date|format_date }}
+                  {% else %}
+                    Not specified
+                  {% endif %}
+                </span>
+              </div>
+            </div>
+            
+            <!-- Requirements -->
+            <div class="mb-4">
+              <h6 class="fw-bold mb-2">
+                <i class="fas fa-clipboard-list text-primary me-2"></i>Requirements
+              </h6>
+              <div class="p-3 bg-light rounded">
+                {% if request.requirements %}
+                  <p class="mb-0">{{ request.requirements }}</p>
+                {% else %}
+                  <p class="text-muted fst-italic mb-0">No specific requirements mentioned</p>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <form action="{{ url_for('influencer.handle_request', request_id=request.id) }}" method="POST" class="mt-auto">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <div class="d-grid gap-2">
+                <button type="submit" name="action" value="accept" class="btn btn-success">
+                  <i class="fas fa-check me-2"></i>Accept Collaboration
+                </button>
+                <button type="submit" name="action" value="reject" class="btn btn-outline-danger">
+                  <i class="fas fa-times me-2"></i>Decline Request
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="card border-0 shadow-sm text-center p-5">
+      <div class="my-5">
+        <div class="display-6 text-muted mb-4">
+          <i class="fas fa-inbox-in fa-2x mb-3 text-secondary"></i>
+          <h3 class="fw-bold">No Pending Requests</h3>
+        </div>
+        <p class="text-muted mb-4">You don't have any pending collaboration requests at the moment.</p>
+        <a href="{{ url_for('influencer.search_campaigns') }}" class="btn btn-primary">
+          <i class="fas fa-search me-2"></i>Browse Available Campaigns
+        </a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<style>
+  .avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+  
+  .bg-primary-soft {
+    background-color: rgba(13, 110, 253, 0.1);
+  }
+  
+  .bg-success-soft {
+    background-color: rgba(25, 135, 84, 0.1);
+  }
+  
+  .bg-info-soft {
+    background-color: rgba(13, 202, 240, 0.1);
+  }
+  
+  .bg-warning-soft {
+    background-color: rgba(255, 193, 7, 0.1);
+  }
+  
+  .hover-lift {
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-5px);
+  }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const action = e.submitter.value;
+            const actionText = action === 'accept' ? 'accept this collaboration request' : 'decline this request';
+            
+            if (confirm(`Are you sure you want to ${actionText}?`)) {
+                this.submit();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Submit Ad Request</h2>
+  <h3>Selected Campaign: {{ campaign.name }}</h3>
+  <h4>Target Influencer: {{ influencer.username }}</h4>
+
+  <form method="POST" class="bg-light p-4 rounded shadow-sm">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+      {{ form.requirements.label(class="form-label") }}
+      {{ form.requirements(class="form-control") }}
+    </div>
+    <div class="mb-3">
+      {{ form.payment_amount.label(class="form-label") }}
+      {{ form.payment_amount(class="form-control") }}
+    </div>
+    <button type="submit" class="btn btn-primary">Send Request</button>
+  </form>
+</div>
+{% endblock %}
+

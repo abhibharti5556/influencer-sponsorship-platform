@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block title %}{{ campaign.name }} - InfluencerConnect{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-12">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.search_campaigns') }}">Campaigns</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ campaign.name }}</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <div>
+                <h1 class="mb-1">{{ campaign.name }}</h1>
+                <p class="text-muted mb-0">
+                  <i class="fas fa-tag text-primary me-1"></i>{{ campaign.niche }}
+                </p>
+              </div>
+              <div>
+                <span class="badge {% if campaign.visibility == 'public' %}bg-success{% else %}bg-warning{% endif %} mb-2 d-block">
+                  {{ campaign.visibility.capitalize() }}
+                </span>
+                {% if campaign.is_flagged %}
+                <span class="badge bg-danger d-block">Flagged</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <hr>
+
+            <div class="mb-4">
+              <h5 class="mb-3">Description</h5>
+              <p>{{ campaign.description }}</p>
+            </div>
+
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <h5 class="mb-3">Campaign Details</h5>
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item px-0 d-flex justify-content-between">
+                    <span><i class="fas fa-calendar text-primary me-2"></i>Start Date:</span>
+                    <span class="fw-bold">{{ campaign.start_date|format_date }}</span>
+                  </li>
+                  <li class="list-group-item px-0 d-flex justify-content-between">
+                    <span><i class="fas fa-calendar-check text-primary me-2"></i>End Date:</span>
+                    <span class="fw-bold">{{ campaign.end_date|format_date }}</span>
+                  </li>
+                  <li class="list-group-item px-0 d-flex justify-content-between">
+                    <span><i class="fas fa-money-bill-wave text-primary me-2"></i>Budget:</span>
+                    <span class="fw-bold">${{ "%.2f"|format(campaign.budget) }}</span>
+                  </li>
+                </ul>
+              </div>
+              <div class="col-md-6">
+                <h5 class="mb-3">Status Information</h5>
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item px-0 d-flex justify-content-between">
+                    <span><i class="fas fa-user text-primary me-2"></i>Created By:</span>
+                    <a href="{{ url_for('admin.view_user_profile', user_id=campaign.sponsor.id) }}" class="fw-bold text-decoration-none">
+                      {{ campaign.sponsor.name }}
+                    </a>
+                  </li>
+                  <li class="list-group-item px-0 d-flex justify-content-between">
+                    <span><i class="fas fa-clock text-primary me-2"></i>Created On:</span>
+                    <span class="fw-bold">{{ campaign.created_at|format_date }}</span>
+                  </li>
+                  <li class="list-group-item px-0 d-flex justify-content-between">
+                    <span><i class="fas fa-user-friends text-primary me-2"></i>Applications:</span>
+                    <span class="fw-bold">{{ ad_requests|length }}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2">
+              {% if campaign.is_flagged %}
+              <a href="{{ url_for('admin.unflag_campaign', campaign_id=campaign.id) }}" class="btn btn-success">
+                <i class="fas fa-flag me-1"></i>Unflag Campaign
+              </a>
+              {% else %}
+              <a href="{{ url_for('admin.flag_campaign', campaign_id=campaign.id) }}" class="btn btn-danger">
+                <i class="fas fa-flag me-1"></i>Flag Campaign
+              </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Ad Requests Section -->
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">Campaign Applications</h5>
+          </div>
+          <div class="card-body p-0">
+            {% if ad_requests %}
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="bg-light">
+                  <tr>
+                    <th scope="col" class="ps-4">Influencer</th>
+                    <th scope="col">Payment</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Submitted</th>
+                    <th scope="col" class="text-end pe-4">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for ad_request in ad_requests %}
+                  <tr>
+                    <td class="ps-4">
+                      <div class="d-flex align-items-center">
+                        {% if ad_request.influencer.profile_picture %}
+                          <img src="{{ ad_request.influencer.profile_picture }}" alt="{{ ad_request.influencer.username }}" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                        {% else %}
+                          <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                            <i class="fas fa-user text-white"></i>
+                          </div>
+                        {% endif %}
+                        <div>
+                          <h6 class="mb-0">{{ ad_request.influencer.name }}</h6>
+                          <small class="text-muted">@{{ ad_request.influencer.username }}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>${{ "%.2f"|format(ad_request.payment_amount) }}</td>
+                    <td>
+                      <span class="badge 
+                        {% if ad_request.status == 'accepted' %}bg-success
+                        {% elif ad_request.status == 'rejected' %}bg-danger
+                        {% else %}bg-warning{% endif %}">
+                        {{ ad_request.status.capitalize() }}
+                      </span>
+                    </td>
+                    <td>{{ ad_request.created_at|format_date }}</td>
+                    <td class="text-end pe-4">
+                      <a href="{{ url_for('admin.view_user_profile', user_id=ad_request.influencer.id) }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-eye me-1"></i>View Profile
+                      </a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+              <i class="fas fa-users fa-3x text-muted mb-3"></i>
+              <h4 class="fw-light text-muted">No applications yet</h4>
+              <p class="text-muted">This campaign has not received any applications</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <!-- Sponsor Info Card -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">Sponsor Information</h5>
+          </div>
+          <div class="card-body">
+            <div class="text-center mb-4">
+              {% if campaign.sponsor.profile_picture %}
+                <img src="{{ campaign.sponsor.profile_picture }}" alt="{{ campaign.sponsor.username }}" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+              {% else %}
+                <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 100px; height: 100px;">
+                  <i class="fas fa-user fa-3x text-white"></i>
+                </div>
+              {% endif %}
+              <h5 class="mb-1">{{ campaign.sponsor.name }}</h5>
+              <p class="text-muted mb-0">@{{ campaign.sponsor.username }}</p>
+              {% if campaign.sponsor.is_flagged %}
+              <span class="badge bg-danger mt-2">Flagged User</span>
+              {% endif %}
+            </div>
+
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item px-0">
+                <i class="fas fa-envelope text-primary me-2"></i>{{ campaign.sponsor.email }}
+              </li>
+              {% if campaign.sponsor.company %}
+              <li class="list-group-item px-0">
+                <i class="fas fa-building text-primary me-2"></i>{{ campaign.sponsor.company }}
+              </li>
+              {% endif %}
+              {% if campaign.sponsor.website %}
+              <li class="list-group-item px-0">
+                <i class="fas fa-globe text-primary me-2"></i>
+                <a href="{{ campaign.sponsor.website }}" target="_blank" rel="noopener noreferrer">
+                  {{ campaign.sponsor.website|truncate(30) }}
+                </a>
+              </li>
+              {% endif %}
+              <li class="list-group-item px-0">
+                <i class="fas fa-bullhorn text-primary me-2"></i>
+                <span>{{ sponsor_campaigns|length }} active campaigns</span>
+              </li>
+            </ul>
+
+            <div class="mt-4">
+              <a href="{{ url_for('admin.view_user_profile', user_id=campaign.sponsor.id) }}" class="btn btn-outline-primary w-100">
+                <i class="fas fa-user me-1"></i>View Full Profile
+              </a>
+              <div class="d-grid gap-2 mt-2">
+                {% if campaign.sponsor.is_flagged %}
+                <a href="{{ url_for('admin.unflag_user', user_id=campaign.sponsor.id) }}" class="btn btn-success">
+                  <i class="fas fa-flag me-1"></i>Unflag Sponsor
+                </a>
+                {% else %}
+                <a href="{{ url_for('admin.flag_user', user_id=campaign.sponsor.id) }}" class="btn btn-danger">
+                  <i class="fas fa-flag me-1"></i>Flag Sponsor
+                </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %} 

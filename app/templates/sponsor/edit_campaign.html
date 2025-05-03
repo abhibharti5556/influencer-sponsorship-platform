@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <h1 class="text-center mb-4">Update Campaign</h1>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Current Status: 
+                        <span class="badge bg-{{ 'success' if campaign.status == 'active' else 'warning' if campaign.status == 'pending' else 'secondary' }}">
+                            {{ campaign.status|title }}
+                        </span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted mb-0">Status is automatically determined based on dates:</p>
+                    <ul class="small text-muted mb-0">
+                        <li>Before start date: <span class="badge bg-warning">Pending</span></li>
+                        <li>Between start and end date: <span class="badge bg-success">Active</span></li>
+                        <li>After end date: <span class="badge bg-secondary">Inactive</span></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                <div class="mb-3">
+                    {{ form.title.label(class="form-label") }}
+                    {{ form.title(class="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.description.label(class="form-label") }}
+                    {{ form.description(class="form-control") }}
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form.start_date.label(class="form-label") }}
+                        {{ form.start_date(class="form-control", type="date") }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ form.end_date.label(class="form-label") }}
+                        {{ form.end_date(class="form-control", type="date") }}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    {{ form.duration.label(class="form-label") }}
+                    {{ form.duration(class="form-control", placeholder="Optional - will be calculated from dates if not provided") }}
+                    <small class="form-text text-muted">Leave empty to calculate from start and end dates</small>
+                </div>
+                <div class="mb-3">
+                    {{ form.budget.label(class="form-label") }}
+                    {{ form.budget(class="form-control", type="number", step="0.01") }}
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form.platform.label(class="form-label") }}
+                        {{ form.platform(class="form-select") }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ form.niche.label(class="form-label") }}
+                        {{ form.niche(class="form-select") }}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    {{ form.requirements.label(class="form-label") }}
+                    {{ form.requirements(class="form-control", rows=4) }}
+                </div>
+                <div class="mb-3">
+                    {{ form.status.label(class="form-label") }}
+                    {{ form.status(class="form-select") }}
+                    <small class="form-text text-muted">Manually override the status (will be auto-updated daily)</small>
+                </div>
+                <div class="mb-3">
+                    {{ form.visibility.label(class="form-label") }}
+                    {{ form.visibility(class="form-select") }}
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-block">Update Campaign</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

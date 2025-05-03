@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - InfluencerConnect{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="display-5 fw-bold">Admin Dashboard</h1>
+      <p class="lead text-muted">Monitor and manage the InfluencerConnect platform</p>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-3">
+            <i class="fas fa-bolt text-primary me-2"></i>Quick Actions
+          </h5>
+          <div class="row g-3">
+            <div class="col-md-3">
+              <a href="{{ url_for('admin.search_campaigns') }}" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center py-3">
+                <i class="fas fa-bullhorn me-2"></i>Manage Campaigns
+              </a>
+            </div>
+            <div class="col-md-3">
+              <a href="{{ url_for('admin.search_users') }}" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center py-3">
+                <i class="fas fa-users me-2"></i>Manage Users
+              </a>
+            </div>
+            <div class="col-md-3">
+              <a href="{{ url_for('admin.edit_profile') }}" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center py-3">
+                <i class="fas fa-user-edit me-2"></i>Edit Profile
+              </a>
+            </div>
+            <div class="col-md-3">
+              <a href="{{ url_for('admin.settings') }}" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center py-3">
+                <i class="fas fa-cog me-2"></i>Settings
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Platform Statistics -->
+  <div class="row mb-5">
+    <div class="col-lg-4 mb-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-gradient-primary p-3">
+          <h5 class="mb-0 text-white">
+            <i class="fas fa-users me-2"></i>User Statistics
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-muted">Total Users</span>
+            <h3 class="mb-0">{{ stats.total_users }}</h3>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-muted">Active Users</span>
+            <h3 class="mb-0">{{ stats.active_users }}</h3>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="text-muted">Flagged Users</span>
+            <h3 class="mb-0">{{ stats.flagged_users }}</h3>
+          </div>
+          
+          <hr>
+          
+          <div class="text-center mt-3">
+            <a href="{{ url_for('admin.search_users') }}" class="btn btn-primary">
+              <i class="fas fa-users me-1"></i>Manage Users
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-gradient-primary p-3">
+          <h5 class="mb-0 text-white">
+            <i class="fas fa-bullhorn me-2"></i>Campaign Statistics
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-muted">Total Campaigns</span>
+            <h3 class="mb-0">{{ stats.total_campaigns }}</h3>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-muted">Public Campaigns</span>
+            <h3 class="mb-0">{{ stats.public_campaigns }}</h3>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="text-muted">Flagged Campaigns</span>
+            <h3 class="mb-0">{{ stats.flagged_campaigns }}</h3>
+          </div>
+          
+          <hr>
+          
+          <div class="text-center mt-3">
+            <a href="{{ url_for('admin.search_campaigns') }}" class="btn btn-primary">
+              <i class="fas fa-bullhorn me-1"></i>Manage Campaigns
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-gradient-primary p-3">
+          <h5 class="mb-0 text-white">
+            <i class="fas fa-exchange-alt me-2"></i>Request Statistics
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-muted">Total Requests</span>
+            <h3 class="mb-0">{{ stats.total_ad_requests }}</h3>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-muted">Pending Requests</span>
+            <h3 class="mb-0">{{ stats.pending_ad_requests }}</h3>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="text-muted">Accepted Requests</span>
+            <h3 class="mb-0">{{ stats.accepted_ad_requests }}</h3>
+          </div>
+          
+          <hr>
+          
+          <div class="text-center mt-3">
+            <a href="{{ url_for('admin.search_campaigns') }}" class="btn btn-primary">
+              <i class="fas fa-search me-1"></i>View Campaigns
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Campaign Distribution Chart -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-gradient-primary p-3">
+          <h5 class="mb-0 text-white">
+            <i class="fas fa-chart-pie me-2"></i>Campaign Distribution
+          </h5>
+        </div>
+        <div class="card-body">
+          <canvas id="campaignChart" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Recently Flagged Items -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-gradient-primary p-3">
+          <h5 class="mb-0 text-white">
+            <i class="fas fa-exclamation-triangle me-2"></i>Recently Flagged Items
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="row m-0">
+            <div class="col-md-6 p-4 border-end">
+              <h6 class="fw-bold mb-3">Flagged Campaigns</h6>
+              <div class="list-group list-group-flush">
+                {% if flagged_campaigns %}
+                  {% for campaign in flagged_campaigns %}
+                  <a href="{{ url_for('admin.view_campaign', campaign_id=campaign.id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <div>
+                      <h6 class="mb-1">{{ campaign.name }}</h6>
+                      <small class="text-muted">
+                        by {{ campaign.sponsor.name }} | {{ campaign.niche }}
+                      </small>
+                    </div>
+                    <span class="badge bg-danger">Flagged</span>
+                  </a>
+                  {% endfor %}
+                {% else %}
+                  <p class="text-muted mb-0">No flagged campaigns at the moment.</p>
+                {% endif %}
+              </div>
+              
+              {% if flagged_campaigns %}
+              <div class="text-center mt-3">
+                <a href="{{ url_for('admin.search_campaigns') }}?is_flagged=true" class="btn btn-sm btn-outline-primary">
+                  View All Flagged Campaigns
+                </a>
+              </div>
+              {% endif %}
+            </div>
+            <div class="col-md-6 p-4">
+              <h6 class="fw-bold mb-3">Flagged Users</h6>
+              <div class="list-group list-group-flush">
+                {% if flagged_users %}
+                  {% for user in flagged_users %}
+                  <a href="{{ url_for('admin.view_user_profile', user_id=user.id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                      {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture }}" alt="{{ user.username }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                      {% else %}
+                        <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                          <i class="fas fa-user text-white small"></i>
+                        </div>
+                      {% endif %}
+                      <div>
+                        <h6 class="mb-0">{{ user.name }}</h6>
+                        <small class="text-muted">{{ user.role }}</small>
+                      </div>
+                    </div>
+                    <span class="badge bg-danger">Flagged</span>
+                  </a>
+                  {% endfor %}
+                {% else %}
+                  <p class="text-muted mb-0">No flagged users at the moment.</p>
+                {% endif %}
+              </div>
+              
+              {% if flagged_users %}
+              <div class="text-center mt-3">
+                <a href="{{ url_for('admin.search_users') }}?is_flagged=true" class="btn btn-sm btn-outline-primary">
+                  View All Flagged Users
+                </a>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Campaign distribution chart
+    const ctx = document.getElementById('campaignChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Public Campaigns', 'Private Campaigns', 'Flagged Campaigns'],
+        datasets: [{
+          data: [
+            {{ stats.public_campaigns }}, 
+            {{ stats.private_campaigns }},
+            {{ stats.flagged_campaigns }}
+          ],
+          backgroundColor: [
+            'rgba(67, 97, 238, 0.7)',
+            'rgba(114, 9, 183, 0.7)',
+            'rgba(247, 37, 133, 0.7)'
+          ],
+          borderColor: [
+            'rgba(67, 97, 238, 1)',
+            'rgba(114, 9, 183, 1)',
+            'rgba(247, 37, 133, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

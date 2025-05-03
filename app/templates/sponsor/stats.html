@@ -1,0 +1,367 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard - InfluencerConnect{% endblock %}
+
+{% block content %}
+<section class="py-5" style="background-color: #f8f9fa;">
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h1 class="fw-bold">Sponsor Analytics</h1>
+            <p class="text-muted">Track your campaign performance and engagement metrics</p>
+          </div>
+          <div>
+            <select class="form-select" id="timeRange">
+              <option value="30">Last 30 days</option>
+              <option value="90">Last 90 days</option>
+              <option value="180">Last 6 months</option>
+              <option value="365">Last year</option>
+              <option value="all" selected>All time</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="row g-4 mb-5">
+      <div class="col-md-4">
+        <div class="card border-0 h-100 shadow-sm">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between mb-2">
+              <div class="feature-icon-box me-3">
+                <i class="fas fa-bullhorn"></i>
+              </div>
+              <span class="badge bg-soft-primary text-primary">Campaigns</span>
+            </div>
+            <h3 class="fw-bold mb-1">{{ total_campaigns }}</h3>
+            <p class="text-muted mb-0">Total Marketing Initiatives</p>
+            <div class="progress mt-3" style="height: 5px;">
+              <div class="progress-bar bg-primary" role="progressbar" style="width: {{ total_campaigns * 10 }}%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 h-100 shadow-sm">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between mb-2">
+              <div class="feature-icon-box me-3">
+                <i class="fas fa-dollar-sign"></i>
+              </div>
+              <span class="badge bg-soft-success text-success">Budget</span>
+            </div>
+            <h3 class="fw-bold mb-1">${{ total_budget|round(2) }}</h3>
+            <p class="text-muted mb-0">Total Investment</p>
+            <div class="progress mt-3" style="height: 5px;">
+              <div class="progress-bar bg-success" role="progressbar" style="width: 85%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 h-100 shadow-sm">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between mb-2">
+              <div class="feature-icon-box me-3">
+                <i class="fas fa-paper-plane"></i>
+              </div>
+              <span class="badge bg-soft-info text-info">Requests</span>
+            </div>
+            <h3 class="fw-bold mb-1">{{ total_ad_requests }}</h3>
+            <p class="text-muted mb-0">Total Ad Requests</p>
+            <div class="progress mt-3" style="height: 5px;">
+              <div class="progress-bar bg-info" role="progressbar" style="width: {{ total_ad_requests * 5 }}%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Charts & Tables Row -->
+    <div class="row g-4 mb-5">
+      <!-- Request Status Chart -->
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h5 class="fw-bold mb-0">Request Status Distribution</h5>
+            </div>
+            <div class="row">
+              <div class="col-md-7">
+                <canvas id="requestStatusChart" style="width: 100%; height: 220px;"></canvas>
+              </div>
+              <div class="col-md-5">
+                <div class="mt-2">
+                  <div class="row g-2">
+                    {% for status, count in ad_requests_by_status.items() %}
+                    <div class="col-12">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                          <div class="me-2" style="width: 10px; height: 10px; border-radius: 50%; background-color: {{ ['#4361ee', '#3a0ca3', '#f72585', '#4cc9f0', '#7209b7'][loop.index0 % 5] }};"></div>
+                          <span class="text-truncate me-2" title="{{ status }}">{{ status|capitalize }}</span>
+                        </div>
+                        <span class="fw-bold">{{ count }}</span>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Top Campaigns -->
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h5 class="fw-bold mb-0">Top Performing Campaigns</h5>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th scope="col" width="50">#</th>
+                    <th scope="col">Campaign</th>
+                    <th scope="col" class="text-end">Requests</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for campaign in top_campaigns %}
+                  <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="rounded-circle p-2 me-3" style="background: linear-gradient(45deg, var(--gradient-1), var(--gradient-3)); color: white;">
+                          <i class="fas {{ ['fa-bullhorn', 'fa-certificate', 'fa-star', 'fa-award', 'fa-bolt'][loop.index0 % 5] }}"></i>
+                        </div>
+                        <span class="fw-medium">{{ campaign.name }}</span>
+                      </div>
+                    </td>
+                    <td class="text-end">
+                      <span class="badge bg-gradient-primary px-3 py-2 rounded-pill">{{ campaign.request_count }}</span>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Performance & Analytics Row -->
+    <div class="row g-4">
+      <!-- Monthly Performance -->
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h5 class="fw-bold mb-0">Monthly Campaign Performance</h5>
+              <div class="dropdown">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="performanceDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                  This Year
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="performanceDropdown">
+                  <li><a class="dropdown-item" href="#">This Year</a></li>
+                  <li><a class="dropdown-item" href="#">Last 6 Months</a></li>
+                  <li><a class="dropdown-item" href="#">Last 3 Months</a></li>
+                </ul>
+              </div>
+            </div>
+            <div>
+              <canvas id="monthlyPerformanceChart" style="width: 100%; height: 300px;"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Engagement Metrics -->
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body p-4">
+            <h5 class="fw-bold mb-4">Engagement Metrics</h5>
+            
+            <div class="mb-4">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="text-muted">Average Response Time</span>
+                <span class="fw-bold">2.3 days</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-gradient-primary" role="progressbar" style="width: 75%"></div>
+              </div>
+            </div>
+            
+            <div class="mb-4">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="text-muted">Acceptance Rate</span>
+                <span class="fw-bold">{{ (ad_requests_by_status.get('accepted', 0) / total_ad_requests * 100)|round if total_ad_requests > 0 else 0 }}%</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: {{ (ad_requests_by_status.get('accepted', 0) / total_ad_requests * 100) if total_ad_requests > 0 else 0 }}%"></div>
+              </div>
+            </div>
+            
+            <div class="mb-4">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="text-muted">Campaign Completion</span>
+                <span class="fw-bold">82%</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-info" role="progressbar" style="width: 82%"></div>
+              </div>
+            </div>
+            
+            <div class="mb-4">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="text-muted">Budget Utilization</span>
+                <span class="fw-bold">64%</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-warning" role="progressbar" style="width: 64%"></div>
+              </div>
+            </div>
+            
+            <div class="mb-0">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="text-muted">Influencer Satisfaction</span>
+                <span class="fw-bold">91%</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-danger" role="progressbar" style="width: 91%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Request Status Chart
+    const statusCtx = document.getElementById('requestStatusChart').getContext('2d');
+    const statusLabels = [
+      {% for status, count in ad_requests_by_status.items() %}
+        "{{ status|capitalize }}",
+      {% endfor %}
+    ];
+    const statusData = [
+      {% for status, count in ad_requests_by_status.items() %}
+        {{ count }},
+      {% endfor %}
+    ];
+    const statusColors = ['#4361ee', '#3a0ca3', '#f72585', '#4cc9f0', '#7209b7'];
+    
+    new Chart(statusCtx, {
+      type: 'doughnut',
+      data: {
+        labels: statusLabels,
+        datasets: [{
+          data: statusData,
+          backgroundColor: statusColors.slice(0, statusLabels.length),
+          borderWidth: 0,
+          borderRadius: 5
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '65%',
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
+      }
+    });
+    
+    // Monthly Performance Chart
+    const performanceCtx = document.getElementById('monthlyPerformanceChart').getContext('2d');
+    
+    new Chart(performanceCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        datasets: [
+          {
+            label: 'Campaigns',
+            data: [2, 3, 4, 2, 1, 3, 5, 4, 2, 3, 4, {{ total_campaigns }}],
+            backgroundColor: 'rgba(67, 97, 238, 0.7)',
+            borderRadius: 6,
+            barPercentage: 0.5
+          },
+          {
+            label: 'Ad Requests',
+            data: [5, 7, 10, 8, 5, 9, 15, 12, 8, 10, 12, {{ total_ad_requests }}],
+            backgroundColor: 'rgba(76, 201, 240, 0.7)',
+            borderRadius: 6,
+            barPercentage: 0.5
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+              boxWidth: 15,
+              usePointStyle: true,
+              pointStyle: 'circle'
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              drawBorder: false,
+              borderDash: [3, 3]
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            }
+          }
+        }
+      }
+    });
+  });
+</script>
+
+<style>
+.bg-soft-primary {
+  background-color: rgba(67, 97, 238, 0.15);
+}
+.bg-soft-success {
+  background-color: rgba(16, 185, 129, 0.15);
+}
+.bg-soft-info {
+  background-color: rgba(76, 201, 240, 0.15);
+}
+.bg-gradient-primary {
+  background: linear-gradient(to right, var(--gradient-1), var(--gradient-3));
+}
+.badge.rounded-pill {
+  font-weight: 500;
+  padding: 0.5rem 0.8rem;
+}
+.fw-medium {
+  font-weight: 500;
+}
+</style>
+{% endblock %}
+

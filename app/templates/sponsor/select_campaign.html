@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Select Campaign - InfluencerConnect{% endblock %}
+
+{% block content %}
+<section class="py-5" style="background-color: #f8f9fa;">
+  <div class="container">
+    <div class="row mb-5">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+            <div class="row align-items-center">
+              <div class="col-md-2 text-center mb-3 mb-md-0">
+                <div style="width: 90px; height: 90px; overflow: hidden; border-radius: 50%; background: linear-gradient(45deg, var(--gradient-1), var(--gradient-3)); margin: 0 auto;">
+                  {% if influencer.profile_picture %}
+                    <img src="{{ influencer.profile_picture }}" class="img-fluid" alt="{{ influencer.username }}" style="width: 100%; height: 100%; object-fit: cover;">
+                  {% else %}
+                    <div class="w-100 h-100 d-flex align-items-center justify-content-center text-white">
+                      <i class="fas fa-user fa-2x"></i>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-md-7">
+                <h2 class="fw-bold mb-1">{{ influencer.name }}</h2>
+                <p class="mb-1 text-muted">
+                  <i class="fas fa-tag text-primary me-2"></i>{{ influencer.category|capitalize or 'No category' }} | 
+                  <i class="fas fa-bullseye text-info me-1"></i>{{ influencer.niche|capitalize }}
+                </p>
+                <div class="social-links mt-2">
+                  {% if influencer.instagram %}
+                    <a href="{{ influencer.instagram }}" class="me-2 text-dark" target="_blank" title="Instagram">
+                      <i class="fab fa-instagram"></i>
+                    </a>
+                  {% endif %}
+                  {% if influencer.twitter %}
+                    <a href="{{ influencer.twitter }}" class="me-2 text-dark" target="_blank" title="Twitter">
+                      <i class="fab fa-twitter"></i>
+                    </a>
+                  {% endif %}
+                  {% if influencer.website %}
+                    <a href="{{ influencer.website }}" class="me-2 text-dark" target="_blank" title="Website">
+                      <i class="fas fa-globe"></i>
+                    </a>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-md-3 text-md-end mt-3 mt-md-0">
+                <div class="badge bg-gradient-primary p-2 mb-2 d-inline-block">
+                  <i class="fas fa-user-check me-1"></i>Verified Influencer
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row mb-4">
+      <div class="col-12">
+        <h2 class="fw-bold mb-1">Select a Campaign</h2>
+        <p class="text-muted">Choose a campaign to send an ad request to {{ influencer.name }}</p>
+      </div>
+    </div>
+    
+    <form method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}"/>
+      
+      <div class="row">
+        {% for campaign in campaigns %}
+        <div class="col-lg-4 mb-4">
+          <div class="card campaign-card border-0 shadow-sm h-100" data-campaign-id="{{ campaign.id }}">
+            <div class="card-body p-4">
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="radio" name="campaign_id" id="campaign{{ campaign.id }}" value="{{ campaign.id }}" {% if loop.first %}checked{% endif %}>
+                <label class="form-check-label fw-bold fs-5" for="campaign{{ campaign.id }}">
+                  {{ campaign.name }}
+                </label>
+              </div>
+              
+              <div class="mb-3">
+                <div class="badge bg-soft-{{ ['primary', 'info', 'success', 'warning', 'danger'][loop.index0 % 5] }} mb-2">
+                  {{ campaign.niche|capitalize }}
+                </div>
+                <p class="text-muted small mb-0">
+                  {{ campaign.description|truncate(100) if campaign.description else 'No description available' }}
+                </p>
+              </div>
+              
+              <div class="row g-2 mb-3">
+                <div class="col-6">
+                  <div class="d-flex align-items-center">
+                    <div class="me-2 text-primary">
+                      <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <div>
+                      <small class="text-muted d-block">Start Date</small>
+                      <span class="fw-medium">{{ campaign.start_date.strftime('%b %d, %Y') }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="d-flex align-items-center">
+                    <div class="me-2 text-danger">
+                      <i class="fas fa-calendar-times"></i>
+                    </div>
+                    <div>
+                      <small class="text-muted d-block">End Date</small>
+                      <span class="fw-medium">{{ campaign.end_date.strftime('%b %d, %Y') }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="d-flex align-items-center mt-3">
+                <div class="me-2 text-success">
+                  <i class="fas fa-dollar-sign fa-lg"></i>
+                </div>
+                <div>
+                  <small class="text-muted d-block">Budget</small>
+                  <span class="fw-bold text-success">${{ "%.2f"|format(campaign.budget) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      
+      <div class="row mt-4">
+        <div class="col-12 text-center">
+          {% if campaigns %}
+          <button type="submit" class="btn btn-primary btn-lg px-5">
+            <i class="fas fa-paper-plane me-2"></i>Continue to Send Ad Request
+          </button>
+          {% else %}
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>You don't have any active campaigns. Please create a campaign first.
+          </div>
+          <a href="{{ url_for('sponsor.create_campaign') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Create New Campaign
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+
+<style>
+.campaign-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 2px solid transparent !important;
+}
+.campaign-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}
+.campaign-card input[type="radio"] {
+  cursor: pointer;
+}
+.bg-gradient-primary {
+  background: linear-gradient(to right, var(--gradient-1), var(--gradient-3));
+  color: white;
+}
+.bg-soft-primary {
+  background-color: rgba(67, 97, 238, 0.15);
+}
+.bg-soft-info {
+  background-color: rgba(76, 201, 240, 0.15);
+}
+.bg-soft-success {
+  background-color: rgba(16, 185, 129, 0.15);
+}
+.bg-soft-warning {
+  background-color: rgba(249, 199, 79, 0.15);
+}
+.bg-soft-danger {
+  background-color: rgba(247, 37, 133, 0.15);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Make the entire card clickable for campaign selection
+  const campaignCards = document.querySelectorAll('.campaign-card');
+  
+  campaignCards.forEach(card => {
+    card.addEventListener('click', function() {
+      const radio = this.querySelector('input[type="radio"]');
+      radio.checked = true;
+      
+      // Highlight selected card
+      campaignCards.forEach(c => c.style.borderColor = 'transparent');
+      this.style.borderColor = 'var(--primary-color)';
+    });
+  });
+  
+  // Highlight initially selected card
+  const checkedRadio = document.querySelector('input[type="radio"]:checked');
+  if (checkedRadio) {
+    const card = checkedRadio.closest('.campaign-card');
+    card.style.borderColor = 'var(--primary-color)';
+  }
+});
+</script>
+{% endblock %}
+

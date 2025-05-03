@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row">
+    <!-- Left column - Profile Info -->
+    <div class="col-lg-4 mb-4">
+      <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body text-center">
+          <!-- Profile Picture -->
+          <div class="mb-3">
+            {% if user.profile_picture %}
+              <img src="{{ user.profile_picture }}" alt="{{ user.username }}" class="rounded-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
+            {% else %}
+              <div class="rounded-circle bg-light d-inline-flex justify-content-center align-items-center" style="width: 150px; height: 150px; font-size: 3rem; color: var(--bs-secondary);">
+                <i class="fas fa-user"></i>
+              </div>
+            {% endif %}
+          </div>
+          
+          <h3 class="mb-0">{{ user.username }}</h3>
+          <p class="text-muted mb-3">Influencer</p>
+          
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('influencer.edit_profile') }}" class="btn btn-primary">
+              <i class="fas fa-edit me-1"></i> Edit Profile
+            </a>
+          </div>
+        </div>
+        
+        <div class="card-footer bg-transparent">
+          <div class="d-flex justify-content-around text-center mt-2">
+            <div>
+              <h5 class="mb-0">{{ user_info.followers }}</h5>
+              <small class="text-muted">Followers</small>
+            </div>
+            <div>
+              <h5 class="mb-0">{{ active_campaigns|length }}</h5>
+              <small class="text-muted">Active Campaigns</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Right column - Details and Campaigns -->
+    <div class="col-lg-8">
+      <!-- Influencer Details -->
+      <div class="card shadow-sm border-0 rounded-3 mb-4">
+        <div class="card-header bg-transparent border-0">
+          <h4 class="mb-0">
+            <i class="fas fa-info-circle me-2 text-primary"></i>
+            Influencer Details
+          </h4>
+        </div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-sm-6">
+              <div class="mb-3">
+                <h6 class="text-muted mb-1">Category</h6>
+                <p class="mb-0 fw-medium">{{ user_info.category }}</p>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="mb-3">
+                <h6 class="text-muted mb-1">Niche</h6>
+                <p class="mb-0 fw-medium">{{ user_info.niche }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <h6 class="text-muted mb-1">Bio</h6>
+              <p class="mb-0">
+                {% if user.bio %}
+                  {{ user.bio }}
+                {% else %}
+                  <span class="text-muted fst-italic">No bio provided</span>
+                {% endif %}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Active Campaigns -->
+      <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+          <h4 class="mb-0">
+            <i class="fas fa-bullhorn me-2 text-primary"></i>
+            Active Campaigns
+          </h4>
+          <a href="{{ url_for('influencer.view_pending_requests') }}" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-clock me-1"></i> View Pending
+          </a>
+        </div>
+        <div class="card-body">
+          {% if active_campaigns %}
+            <div class="list-group list-group-flush">
+              {% for campaign in active_campaigns %}
+                <div class="list-group-item px-0">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-1">{{ campaign.name }}</h5>
+                    <span class="badge bg-success rounded-pill">Active</span>
+                  </div>
+                  <p class="mb-2">{{ campaign.description }}</p>
+                  <div class="d-flex flex-wrap">
+                    <span class="me-3 text-muted small">
+                      <i class="fas fa-dollar-sign me-1"></i> Budget: ${{ campaign.budget }}
+                    </span>
+                    <span class="text-muted small">
+                      <i class="fas fa-calendar-alt me-1"></i> {{ campaign.start_date }} to {{ campaign.end_date }}
+                    </span>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-center py-4">
+              <i class="fas fa-search text-muted mb-3" style="font-size: 3rem;"></i>
+              <p class="mb-0">No active campaigns at the moment.</p>
+              <p class="text-muted">Check pending campaigns or find new campaigns to apply for.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
