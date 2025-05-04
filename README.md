@@ -1,4 +1,4 @@
-# Influencer Campaign Management Platform
+# Influencer Sponsorship Coordination Platform
 
 A web application that connects influencers with sponsors for marketing campaigns, built with Flask.
 
