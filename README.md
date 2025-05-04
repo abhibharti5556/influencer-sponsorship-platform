@@ -15,7 +15,7 @@ A web application that connects influencers with sponsors for marketing campaign
 
 ### Prerequisites
 - Python 3.8 or higher
-- pip (Python package installer)
+
 
 ### Installation
 
