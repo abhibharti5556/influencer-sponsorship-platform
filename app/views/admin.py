@@ -572,28 +572,36 @@ def search_campaigns():
 @login_required
 def flag_user(user_id):
     if current_user.role != "admin":
-        return {"message": "Not authorized"}, 403
+        flash("Access denied. You must be an admin to perform this action.", "danger")
+        return redirect(url_for("main.home"))
     
     user_to_flag = User.query.get_or_404(user_id)
     
     if user_to_flag.role == 'admin':
-        return {"message": "Admin users cannot be flagged"}, 400
+        flash("Admin users cannot be flagged.", "warning")
     else:
         user_to_flag.is_flagged = True
         db.session.commit()
-        return {"message": "User flagged successfully", "is_flagged": True}
+        flash(f"User {user_to_flag.username} has been flagged.", "success")
+    
+    # Redirect back to the referring page
+    return redirect(request.referrer or url_for('admin.search_users'))
 
 
 @admin.route("/admin/unflag_user/<int:user_id>", methods=["POST"])
 @login_required
 def unflag_user(user_id):
     if current_user.role != "admin":
-        return {"message": "Not authorized"}, 403
+        flash("Access denied. You must be an admin to perform this action.", "danger")
+        return redirect(url_for("main.home"))
     
     user_to_unflag = User.query.get_or_404(user_id)
     user_to_unflag.is_flagged = False
     db.session.commit()
-    return {"message": "User unflagged successfully", "is_flagged": False}
+    flash(f"User {user_to_unflag.username} has been unflagged.", "success")
+    
+    # Redirect back to the referring page
+    return redirect(request.referrer or url_for('admin.search_users'))
 
 
 @admin.route("/admin/view_user/<int:user_id>")

@@ -6,6 +6,8 @@ __pycache__/
 env/
 venv/
 ENV/
+.venv/
+.env/
 build/
 develop-eggs/
 dist/
@@ -28,3 +30,5 @@ instance/
 *.sqlite3
 *.db
 .DS_Store
+.idea/
+.vscode/

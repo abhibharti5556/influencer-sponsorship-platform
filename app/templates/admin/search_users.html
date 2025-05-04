@@ -370,57 +370,23 @@
 <script>
 function toggleUserFlag(userId, flag) {
     const url = flag ? `/admin/flag_user/${userId}` : `/admin/unflag_user/${userId}`;
-    const method = 'POST';
     
-    fetch(url, {
-        method: method,
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token() }}'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message) {
-            // Update the row's background
-            const row = document.getElementById(`user-row-${userId}`);
-            if (flag) {
-                row.classList.add('table-danger');
-            } else {
-                row.classList.remove('table-danger');
-            }
-            
-            // Update the status badge
-            const statusBadge = document.getElementById(`status-${userId}`);
-            if (flag) {
-                statusBadge.textContent = 'Flagged';
-                statusBadge.className = 'badge bg-danger';
-            } else {
-                statusBadge.textContent = 'Active';
-                statusBadge.className = 'badge bg-success';
-            }
-            
-            // Update the button
-            const button = row.querySelector('button:last-child');
-            if (flag) {
-                button.className = 'btn btn-sm btn-outline-success';
-                button.innerHTML = '<i class="fas fa-flag"></i> Unflag';
-                button.onclick = () => toggleUserFlag(userId, false);
-            } else {
-                button.className = 'btn btn-sm btn-outline-danger';
-                button.innerHTML = '<i class="fas fa-flag"></i> Flag';
-                button.onclick = () => toggleUserFlag(userId, true);
-            }
-            
-            // Show success message
-            const toast = new bootstrap.Toast(document.createElement('div'));
-            toast.show();
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while updating the user status.');
-    });
+    // Create a form to submit
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = url;
+    
+    // Add CSRF token
+    const csrfField = document.createElement('input');
+    csrfField.type = 'hidden';
+    csrfField.name = 'csrf_token';
+    csrfField.value = '{{ csrf_token() }}';
+    form.appendChild(csrfField);
+    
+    // Append form to body, submit it, and remove it
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
 }
 </script>
 {% endblock %}

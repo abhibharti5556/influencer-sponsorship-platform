@@ -216,13 +216,19 @@
               </a>
               <div class="d-grid gap-2 mt-2">
                 {% if campaign.sponsor.is_flagged %}
-                <a href="{{ url_for('admin.unflag_user', user_id=campaign.sponsor.id) }}" class="btn btn-success">
-                  <i class="fas fa-flag me-1"></i>Unflag Sponsor
-                </a>
+                <form action="{{ url_for('admin.unflag_user', user_id=campaign.sponsor.id) }}" method="POST">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="btn btn-success w-100">
+                    <i class="fas fa-flag me-1"></i>Unflag Sponsor
+                  </button>
+                </form>
                 {% else %}
-                <a href="{{ url_for('admin.flag_user', user_id=campaign.sponsor.id) }}" class="btn btn-danger">
-                  <i class="fas fa-flag me-1"></i>Flag Sponsor
-                </a>
+                <form action="{{ url_for('admin.flag_user', user_id=campaign.sponsor.id) }}" method="POST">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="btn btn-danger w-100">
+                    <i class="fas fa-flag me-1"></i>Flag Sponsor
+                  </button>
+                </form>
                 {% endif %}
               </div>
             </div>

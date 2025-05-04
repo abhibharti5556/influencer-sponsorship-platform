@@ -95,7 +95,7 @@
                     </div>
                     <div>
                       <small class="text-muted d-block">Start Date</small>
-                      <span class="fw-medium">{{ campaign.start_date.strftime('%b %d, %Y') }}</span>
+                      <span class="fw-medium">{{ campaign.start_date|format_date }}</span>
                     </div>
                   </div>
                 </div>
@@ -106,7 +106,7 @@
                     </div>
                     <div>
                       <small class="text-muted d-block">End Date</small>
-                      <span class="fw-medium">{{ campaign.end_date.strftime('%b %d, %Y') }}</span>
+                      <span class="fw-medium">{{ campaign.end_date|format_date }}</span>
                     </div>
                   </div>
                 </div>

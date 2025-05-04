@@ -198,6 +198,9 @@ def stats():
         flash("Access denied. You must be an influencer to view these stats.", "danger")
         return redirect(url_for("main.home"))
 
+    # Force a refresh of the session to ensure we have the latest data
+    db.session.expire_all()
+    
     # Total number of ad requests
     total_requests = AdRequest.query.filter_by(user_id=current_user.id).count()
 
@@ -263,17 +266,31 @@ def view_pending_requests():
         flash("Access restricted. Influencer status required.", "warning")
         return redirect(url_for("main.home"))
 
+    # Force a refresh of the session to ensure we have the latest data
+    db.session.expire_all()
+    
+    # Get all pending requests for this influencer
     pending_requests = (
         AdRequest.query.filter_by(
             applied_for=current_user.id, status="pending", applied_by="sponsor"
         )
-        .join(Campaign)
+        .outerjoin(Campaign)  # Use outerjoin to include requests even if campaign is missing
         .all()
     )
-
+    
+    # Filter out any requests with missing campaigns to avoid errors
+    valid_requests = []
+    for req in pending_requests:
+        # Make sure the campaign exists
+        if hasattr(req, 'campaign') and req.campaign is not None:
+            valid_requests.append(req)
+        else:
+            # Log invalid request
+            print(f"Warning: Found pending request #{req.id} without a valid campaign")
+    
     return render_template(
         "influencer/pending_requests.html",
-        requests=pending_requests,
+        requests=valid_requests,
         user=current_user,
         csrf_token=generate_csrf(),
     )
@@ -288,22 +305,25 @@ def handle_request(request_id):
 
     ad_request = AdRequest.query.get_or_404(request_id)
 
-    if ad_request.user_id != current_user.id:
+    if ad_request.applied_for != current_user.id:
         flash("You don't have permission to modify this request.", "danger")
         return redirect(url_for("influencer.view_pending_requests"))
 
     action = request.form.get("action")
 
     if action == "accept":
-        ad_request.status = "Accepted"
+        ad_request.status = "accepted"
         ad_request.response_date = datetime.utcnow()
+        # Also set the user_id to ensure analytics work correctly
+        ad_request.user_id = current_user.id
+        db.session.commit()
         flash("Ad request accepted successfully.", "success")
     elif action == "reject":
-        ad_request.status = "Rejected"
+        ad_request.status = "rejected"
         ad_request.response_date = datetime.utcnow()
+        db.session.commit()
         flash("Ad request rejected.", "info")
     else:
         flash("Invalid action specified.", "danger")
 
-    db.session.commit()
     return redirect(url_for("influencer.view_pending_requests"))

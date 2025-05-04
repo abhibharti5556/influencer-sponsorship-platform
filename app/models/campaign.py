@@ -23,3 +23,33 @@ class Campaign(db.Model):
     # Relationships
     sponsor = db.relationship("User", back_populates="campaigns")
     ad_requests = db.relationship("AdRequest", back_populates="campaign", cascade="all, delete-orphan")
+    
+    def update_status_based_on_date(self):
+        """
+        Updates the campaign status based on the current date in relation
+        to the campaign's start and end dates.
+        
+        Returns:
+            bool: True if the status was changed, False otherwise
+        """
+        try:
+            today = datetime.now().date()
+            start_date = datetime.strptime(self.start_date, '%Y-%m-%d').date()
+            end_date = datetime.strptime(self.end_date, '%Y-%m-%d').date()
+            
+            old_status = self.status
+            
+            if start_date > today:
+                new_status = "pending"  # Future campaign
+            elif end_date < today:
+                new_status = "inactive"  # Past campaign
+            else:
+                new_status = "active"  # Current campaign
+                
+            if old_status != new_status:
+                self.status = new_status
+                return True
+            
+            return False
+        except Exception:
+            return False

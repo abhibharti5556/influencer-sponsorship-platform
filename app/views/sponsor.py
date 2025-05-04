@@ -26,26 +26,18 @@ def campaigns():
     campaigns = Campaign.query.filter_by(sponsor_id=current_user.id).all()
     
     # Update status for all campaigns based on current date
-    today = datetime.now().date()
+    status_updated = False
     for campaign in campaigns:
-        try:
-            start_date = datetime.strptime(campaign.start_date, '%Y-%m-%d').date()
-            end_date = datetime.strptime(campaign.end_date, '%Y-%m-%d').date()
-            
-            if start_date > today:
-                campaign.status = "pending"  # Future campaign
-            elif end_date < today:
-                campaign.status = "inactive"  # Past campaign
-            else:
-                campaign.status = "active"  # Current campaign
-        except Exception as e:
-            print(f"Error updating campaign {campaign.id} status: {str(e)}")
+        if campaign.update_status_based_on_date():
+            status_updated = True
     
-    try:
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        print(f"Error committing campaign status updates: {str(e)}")
+    # Only commit if any statuses were actually changed
+    if status_updated:
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error committing campaign status updates: {str(e)}")
     
     return render_template(
         "sponsor/campaigns.html", 
@@ -282,6 +274,9 @@ def select_campaign(influencer_id):
 @sponsor.route("/stats")
 @login_required
 def stats():
+    # Force a refresh of the session to ensure we have the latest data
+    db.session.expire_all()
+    
     # Get all campaigns for the current sponsor
     campaigns = Campaign.query.filter_by(sponsor_id=current_user.id).all()
 
@@ -356,8 +351,8 @@ def view_pending_requests():
 @login_required
 def handle_request(request_id):
     if current_user.role != "sponsor":
-        flash("Access restricted. Influencer status required.", "warning")
-        return redirect(url_for("main.main"))
+        flash("Access restricted. Sponsor status required.", "warning")
+        return redirect(url_for("main.home"))
 
     ad_request = AdRequest.query.get_or_404(request_id)
 
@@ -370,8 +365,16 @@ def handle_request(request_id):
     if action == "accept":
         ad_request.status = "accepted"
         ad_request.response_date = datetime.utcnow()
-        flash("Ad request accepted successfully.", "success")
+        
+        # Make sure the campaign_id is properly set if it wasn't already
+        if not ad_request.campaign_id:
+            # Try to find an appropriate campaign for this sponsor
+            campaign = Campaign.query.filter_by(sponsor_id=current_user.id).first()
+            if campaign:
+                ad_request.campaign_id = campaign.id
+        
         db.session.commit()
+        flash("Ad request accepted successfully.", "success")
     elif action == "reject":
         # Delete the request instead of just marking it as rejected
         db.session.delete(ad_request)

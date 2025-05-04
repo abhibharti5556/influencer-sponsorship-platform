@@ -10,9 +10,17 @@ from wtforms import (
     DecimalField,
     URLField,
     IntegerField,
+    EmailField,
 )
 from flask_wtf.file import FileField, FileAllowed
-from wtforms.validators import DataRequired, Email, EqualTo, Length, NumberRange, URL, Optional
+from wtforms.validators import DataRequired, Email, EqualTo, Length, NumberRange, URL, Optional, ValidationError
+import re
+
+# Custom email validator as a fallback
+def validate_email(form, field):
+    email_pattern = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+    if not email_pattern.match(field.data):
+        raise ValidationError('Invalid email address.')
 
 
 class LoginForm(FlaskForm):
@@ -23,7 +31,7 @@ class LoginForm(FlaskForm):
 
 class RegistrationForm(FlaskForm):
     username = StringField("Username", validators=[DataRequired()])
-    email = StringField("Email", validators=[DataRequired(), Email()])
+    email = EmailField("Email", validators=[DataRequired(), validate_email])
     password = PasswordField("Password", validators=[DataRequired()])
     password2 = PasswordField(
         "Repeat Password", validators=[DataRequired(), EqualTo("password")]
@@ -156,7 +164,7 @@ class InfluencerProfileForm(FlaskForm):
 class SponsorProfileForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     profile_picture = FileField("Profile Picture", validators=[Optional(), FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Images only!')])
-    email = StringField("Email", validators=[DataRequired(), Email()])
+    email = EmailField("Email", validators=[DataRequired(), validate_email])
     company = StringField("Company", validators=[Optional()])
     bio = TextAreaField("About Your Company", validators=[Optional(), Length(max=500)])
     website = URLField("Website URL", validators=[Optional(), URL()])
@@ -168,7 +176,7 @@ class SponsorProfileForm(FlaskForm):
 class AdminProfileForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     profile_picture = FileField("Profile Picture", validators=[Optional(), FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Images only!')])
-    email = StringField("Email", validators=[DataRequired(), Email()])
+    email = EmailField("Email", validators=[DataRequired(), validate_email])
     bio = TextAreaField("Bio", validators=[Optional(), Length(max=500)])
     website = URLField("Website URL", validators=[Optional(), URL()])
     submit = SubmitField("Update Profile")
